@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>List management</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+<body>
+
+<div class="container">
+  <!-- Trigger the modal with a button -->
+  <!-- <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Open Large Modal</button> -->
+
+  <!-- Modal -->
+  <div class="modal fade" id="myListModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Add List</h4>
+        </div>
+
+        <div class="modal-body">
+            <form method="post" id="form_add_list">
+                {% csrf_token %}
+            
+            <div class="row">
+                <div class="col-md-4">
+                    <input type="hidden" name="id" id="listid" value="" >
+                    <div class="form-group first">
+                        <p for="projects">Projects :</p>
+                            <select id="projects" name="projects" style="width: 200px;">
+                                <option value=" ">Select Project</option>
+                                {% for list in projects %}
+                                    <option value="{{list.id}}">{{list.title}}</option>
+                                {% endfor %}
+                            </select>
+                      </div>
+                    <div class="form-group first">
+                        <p for="list">List :</p>                  
+                          <input type="text" name="list" id="list" value="" style="width: 200px;">
+                      </div>
+                </div>
+
+                <button type="button" class="btn" id="addlist">Add</button>
+                <button type="button" class="btn" id="updatelist" style="display:none;">Update</button>
+               
+                <button type="button" class="btn" id="clearlist">Clear</button>
+            </div>
+        </form>
+        </div>
+
+        <table id="id_list_data">
+            <thead>
+                <tr>
+                    <th>Project</th>
+                    <th>List Name</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for data in list %}
+                {% for list in projects %}
+                    {% if data.project_title == list.title %}
+
+                    <tr>
+                        <td>{{ data.project_title }}</td>
+                        <td>{{ data.list }}</td>
+                        <td>
+                            <input type="submit" value="Edit" class="btn" id="edit_listdata" data-action="edit" data-id="{{data.id}}" data-project="{{data.project_id}}" data-list="{{data.list}}" >
+                            <input type="submit" value="Delete" class="btn" id="delete_listdata" data-action="delete" data-id="{{data.id}}">
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align: center;">No data found.</td>
+                    </tr>
+                    
+                {% endfor %}
+            </tbody>
+        </table>
+
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
+
+<script>
+    
+    $('#addlist').on('click',function(e){
+        e.preventDefault()
+
+        var project = $('#projects').val()
+        var list = $('#list').val()
+
+        var url = "{% url 'dashboard:addlist' %}"; 
+        var csrfToken = $('[name="csrfmiddlewaretoken"]').val();
+
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: {
+                "project": project,
+                "list": list,
+            },
+            headers: {
+                        "X-CSRFToken": csrfToken
+                    },
+            success: function (data) {
+                console.log(data);
+                if(data.status == 1){
+                    $('#form_add_list')[0].reset()
+                    toastr.success(data.message)
+                    // updateTable()
+                }
+                else if(data.status == -1){
+                    toastr.error(data.message)
+                }
+                else if(data.status == -2){
+                    toastr.error(data.message)
+                }
+                else{
+                    toastr.error(data.message)
+                }          
+                
+            },
+        });
+
+
+    })
+    
+
+
+    $('#clearlist').on('click', function() {
+        $('#form_add_list')[0].reset()
+        $('#addlist').css("display", "");
+        $('#updatelist').css("display", "none");
+    });
+
+    $('body').on('click','#edit_listdata',function(e){
+        e.preventDefault()
+
+        $('#form_add_list')[0].reset()
+        $('#addlist').css("display", "none");
+        $('#updatelist').css("display", "");
+
+        var id = $(this).data('id')
+        var project = $(this).data('project')
+        var list = $(this).data('list')
+
+        $('#listid').val(id)
+        $('#projects').val(project)
+        $('#list').val(list)     
+        
+    })
+
+
+    $('#updatelist').on('click',function(e){
+        e.preventDefault()       
+
+        var list = $('#list').val()
+        var project = $('#projects').val()
+        var id = $('#listid').val()
+        
+        var url = "{% url 'dashboard:updatelist' %}"; 
+        var csrfToken = $('[name="csrfmiddlewaretoken"]').val();
+
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: {
+                "list": list,
+                "project": project,
+                "id": id
+            },
+            headers: {
+                        "X-CSRFToken": csrfToken
+                    },
+            success: function (data) {
+                console.log(data);
+                if(data.status == 1){
+                    $('#addlist').css("display", "");
+                    $('#updatelist').css("display", "none");
+                    $('#form_add_list')[0].reset()
+                    toastr.success(data.message)
+                    // updateTable()
+                }
+                else if(data.status == -1){
+                    toastr.error(data.message)
+                }
+                else{
+                    toastr.error(data.message)
+                }          
+                
+            },
+        });
+    })
+
+    $('body').on('click','#delete_listdata', function() {
+        var id = $(this).data('id');
+        var url = "{% url 'dashboard:deletelist' %}"; 
+        var csrfToken = $('[name="csrfmiddlewaretoken"]').val();
+
+        swal.fire({
+            title: "Are you sure?",
+            showCancelButton: true,
+            confirmButtonText: "Delete",
+        }).then((result) => {
+            console.log(result)
+            if (result.isConfirmed){
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: {
+                    "id":id
+                },
+                headers: {
+                            "X-CSRFToken": csrfToken
+                        },
+                success: function (data) {
+                    console.log(data);
+                    if(data.status == 1){
+                        $('#form_add_list')[0].reset()
+                        toastr.success(data.message)
+                        // updateTable()
+                    }
+                    else if(data.status == -1){
+                        toastr.error(data.message)
+                    }
+                    else{
+                        toastr.error(data.message)
+                    }                       
+                },
+            });
+        }
+        });      
+        
+    });
+
+
+//     function updateTable() {
+//     var url = "{% url 'dashboard:updatetable' %}"; 
+//     $.ajax({
+//       url: url, 
+//       method: 'GET',
+//       success: function(data) {
+//         console.log(data,'this is data')
+//         // Clear the existing table rows
+//         $('#id_prj_list tbody').empty();
+
+//         // Iterate through the data and add rows to the table
+//         $.each(data, function(index, item) {
+//             $('#id_prj_list tbody').append('<tr><td>' + item.title + '</td><td>' + item.description + '</td><td>' + item.startdate + '</td> <td>' + item.enddate + '</td> <td>' + item.status + '</td><td> <input type="submit" value="Edit" class="btn" id="edit_data" data-action="edit" data-id="' + item.id + '" data-title="' + item.title + '" data-description="' + item.description + '" data-startdate="' + item.startdate + '" data-enddate="' + item.enddate + '" data-status="' + item.status + '" ><input type="submit" value="Delete" class="btn" id="delete_data" data-action="delete" data-id="' + item.id + '"> </td></tr>');
+//         });
+//       }
+//     });
+//   }
+
+    
+
+        
+
+</script>

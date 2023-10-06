@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Task management</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+<body>
+
+<div class="container">
+  <!-- Trigger the modal with a button -->
+  <!-- <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Open Large Modal</button> -->
+
+  <!-- Modal -->
+  <div class="modal fade" id="myTaskModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Add Task</h4>
+        </div>
+
+        <div class="modal-body">
+            <form method="post" id="form_add_task">
+                {% csrf_token %}
+            
+            <div class="row">
+                <div class="col-md-4">
+                    <input type="hidden" name="id" id="taskid" value="" style="width: 200px;">
+
+                    <div class="form-group first">
+                        <p for="taskprojects">Projects :</p>
+                            <select id="taskprojects" name="taskprojects" style="width: 200px;">
+                                <option value=" ">Select Project</option>
+                                {% for list in projects %}
+                                    <option value="{{list.id}}">{{list.title}}</option>
+                                {% endfor %}
+                            </select>
+                      </div>
+
+                      <div class="form-group first">
+                        <label for="tasklist">Lists :</label>
+                            <select id="tasklist" name="tasklist" style="width: 200px;">
+                                                          
+                            </select>
+                      </div>
+
+
+                    <div class="form-group first">
+                        <p for="tasktitle">Title :</p>                  
+                          <input type="text" name="tasktitle" id="tasktitle" value="" style="width: 200px;">
+                      </div>
+                      <div class="form-group first">
+                        <p for="taskdescription">Description :</p>
+                        <textarea type="text" name="taskdescription" id="taskdescription" value="" style="height: 83px;width: 250px;"></textarea>
+                      </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group first">
+                        <p for="taskduedate">Due Date :</p>                  
+                          <input type="date" name="taskduedate" id="taskduedate" value="" style="width: 200px;">
+                      </div>
+                      <div class="form-group first">
+                        <p for="taskstatus">Status :</p>
+                            <select id="taskstatus" name="taskstatus">
+                                <option value="pending" selected>Pending</option>
+                                <option value="inprogress">In Progress</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                      </div>
+                </div>
+
+
+                <button type="button" class="btn" id="addtask">Add</button>
+                <button type="button" class="btn" id="updatetask" style="display:none;">Update</button>
+                <button type="button" class="btn" id="cleartask">Clear</button>
+            </div>
+        </form>
+        </div>
+
+        <table id="id_prj_task">
+            <thead>
+                <tr>
+                    <th>Project</th>
+                    <th>List</th>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Due date</th>
+                    <th>Staus</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in task_data %}
+                {% for list in projects %}
+                    {% if data.project_title == list.title %}
+                    <tr>
+                        <td>{{ data.project_title }}</td>
+                        <td>{{ data.task_list_name }}</td>
+                        <td>{{ data.title}}</td>
+                        <td>{{ data.description}}</td>
+                        <td>{{ data.due_date|date:"d/m/Y"}}</td>
+                        <td>{{ data.status}}</td>
+                        <td>
+                            <input type="submit" value="Edit" class="btn" id="edit_taskdata" data-action="edit" data-id="{{data.id}}" 
+                            data-prjtitle="{{data.project__id}}" data-listname="{{data.task_list}}" data-title="{{data.title}}" data-description="{{data.description}}" data-duedate="{{data.due_date|date:'Y-m-d'}}"  data-status="{{data.status}}" >
+                            <input type="submit" value="Delete" class="btn" id="delete_taskdata" data-action="delete" data-id="{{data.id}}">
+                            
+                        </td>
+                    </tr>
+
+                    {% endif %}
+                    {% endfor %}
+                {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align: center;">No data found.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
+
+<script>
+
+    $('#taskprojects').on('change', function() {
+        var prj_id = $('#taskprojects').val();
+        var url = "{% url 'dashboard:getlist' %}";
+        $.ajax({
+                url: url,  
+                data: { "prj_id": prj_id },  
+                success: function(data) {
+                    console.log(data)
+                    $('#tasklist').empty();
+                    $.each(data, function(index, value) {
+                        console.log(value,'here')
+
+                        $.each(value, function(index, item) {
+                            var option = '<option value="' + item.id + '">' + item.list + '</option>';
+                            $('#tasklist').append(option);
+                        })
+                    });
+                }
+            });
+
+    });
+
+
+
+    
+    $('#addtask').on('click',function(e){
+        e.preventDefault()
+
+        var project = $('#taskprojects').val()
+        var list = $('#tasklist').val()
+        var title = $('#tasktitle').val()
+        var description = $('#taskdescription').val()
+        var duedate = $('#taskduedate').val()
+        var status = $('#taskstatus').val()
+
+           
+        var url = "{% url 'dashboard:addtask' %}"; 
+        var csrfToken = $('[name="csrfmiddlewaretoken"]').val();
+
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: {
+                "project": project,
+                "list": list,
+                "title": title,
+                "description": description,
+                "duedate": duedate,
+                "status": status,
+            },
+            headers: {
+                        "X-CSRFToken": csrfToken
+                    },
+            success: function (data) {
+                console.log(data);
+                if(data.status == 1){
+                    $('#form_add_task')[0].reset()
+                    // $('#tasklist').val('')
+                    toastr.success(data.message)
+                    // updateTable()
+                }
+                else if(data.status == -1){
+                    toastr.error(data.message)
+                }
+                else if(data.status == -2){
+                    toastr.error(data.message)
+                }
+                else if(data.status == -3){
+                    toastr.error(data.message)
+                }
+                else if(data.status == -4){
+                    toastr.error(data.message)
+                }
+                else{
+                    toastr.error(data.message)
+                }
+                
+                
+            },
+        });
+
+
+    })
+    
+
+
+    $('#cleartask').on('click', function() {
+        $('#form_add_task')[0].reset()
+        $('#addtask').css("display", "");
+        $('#updatetask').css("display", "none");
+        $('#tasklist').val('')
+    });
+
+
+    $('body').on('click','#edit_taskdata',function(e){
+        e.preventDefault()
+        // $('#taskprojects').trigger('change')
+
+        if($('#edit_taskdata').data('action') == 'home_edit'){
+            $('#myTaskModal').modal('show')
+        }
+
+        $('#form_add_task')[0].reset()
+        // $('#tasklist').val('')
+        $('#addtask').css("display", "none");
+        $('#updatetask').css("display", "");
+
+
+
+        var id = $(this).data('id')
+        var project = $(this).data('prjtitle')
+        var task = $(this).data('listname')
+        var title = $(this).data('title')        
+        var description = $(this).data('description')
+        var duedate = $(this).data('duedate')
+        var status = $(this).data('status')
+
+        
+
+        var url = "{% url 'dashboard:getupdatelistdata' %}"; 
+        var csrfToken = $('[name="csrfmiddlewaretoken"]').val();
+
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: {
+                "id": id,
+            },
+            headers: {
+                        "X-CSRFToken": csrfToken
+                    },
+            success: function (data) {
+                console.log(data);
+                if(data.status == 1){
+
+                                        
+
+                    $('#taskprojects').val(project)
+
+                    // $('#taskprojects').trigger('change')
+                    $('#tasklist').empty()
+                    var option = '<option value="' + data.id + '">' + data.task + '</option>';
+                        $('#tasklist').append(option);
+
+                        // $('#taskprojects').trigger('change')
+
+                    $('#tasklist').val(data.id)
+                    $('#tasktitle').val(title)
+                    $('#taskdescription').val(description)
+                    $('#taskduedate').val(duedate)
+                    $('#taskstatus').val(status)
+                    $('#taskid').val(id)
+
+
+                    // updateTable()
+                } 
+                else{
+                    toastr.error(data.message)
+                }
+            },
+        });
+
+        
+        
+
+    })
+
+
+    $('#updatetask').on('click',function(e){
+        e.preventDefault()       
+
+        var project = $('#taskprojects').val()
+        var list = $('#tasklist').val()
+        var title = $('#tasktitle').val()
+        var description = $('#taskdescription').val()
+        var duedate = $('#taskduedate').val()
+        var status = $('#taskstatus').val()
+        var id = $('#taskid').val()
+        
+        var url = "{% url 'dashboard:updatetask' %}"; 
+        var csrfToken = $('[name="csrfmiddlewaretoken"]').val();
+
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: {
+                "project": project,
+                "list": list,
+                "title": title,
+                "description": description,
+                "duedate": duedate,
+                "status": status,
+                "id":id
+            },
+            headers: {
+                        "X-CSRFToken": csrfToken
+                    },
+            success: function (data) {
+                console.log(data);
+                if(data.status == 1){
+                    $('#addproject').css("display", "");
+                    $('#updateproject').css("display", "none");
+                    $('#form_add_task')[0].reset()
+                    // $('#tasklist').val('')
+                    toastr.success(data.message)
+                    // updateTable()
+                }
+                else if(data.status == -1){
+                    toastr.error(data.message)
+                }
+                else if(data.status == -2){
+                    toastr.error(data.message)
+                }
+                else{
+                    toastr.error(data.message)
+                }          
+                
+            },
+        });
+    })
+
+    $('body').on('click','#delete_taskdata', function() {
+        var id = $(this).data('id');
+        var url = "{% url 'dashboard:deletetask' %}"; 
+        var csrfToken = $('[name="csrfmiddlewaretoken"]').val();
+
+        swal.fire({
+            title: "Are you sure?",
+            showCancelButton: true,
+            confirmButtonText: "Delete",
+        }).then((result) => {
+            console.log(result)
+            if (result.isConfirmed){
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: {
+                    "id":id
+                },
+                headers: {
+                            "X-CSRFToken": csrfToken
+                        },
+                success: function (data) {
+                    console.log(data);
+                    if(data.status == 1){
+                        $('#form_add_task')[0].reset()
+                        // $('#tasklist').val('')
+                        toastr.success(data.message)
+                        // updateTable()
+                    }
+                    else if(data.status == -1){
+                        toastr.error(data.message)
+                    }
+                    else{
+                        toastr.error(data.message)
+                    }                       
+                },
+            });
+        }
+        });      
+        
+    });
+
+
+// //     function updateTable() {
+// //     var url = "{% url 'dashboard:updatetable' %}"; 
+// //     $.ajax({
+// //       url: url, 
+// //       method: 'GET',
+// //       success: function(data) {
+// //         console.log(data,'this is data')
+// //         // Clear the existing table rows
+// //         $('#id_prj_list tbody').empty();
+
+// //         // Iterate through the data and add rows to the table
+// //         $.each(data, function(index, item) {
+// //             $('#id_prj_list tbody').append('<tr><td>' + item.title + '</td><td>' + item.description + '</td><td>' + item.startdate + '</td> <td>' + item.enddate + '</td> <td>' + item.status + '</td><td> <input type="submit" value="Edit" class="btn" id="edit_data" data-action="edit" data-id="' + item.id + '" data-title="' + item.title + '" data-description="' + item.description + '" data-startdate="' + item.startdate + '" data-enddate="' + item.enddate + '" data-status="' + item.status + '" ><input type="submit" value="Delete" class="btn" id="delete_data" data-action="delete" data-id="' + item.id + '"> </td></tr>');
+// //         });
+// //       }
+// //     });
+// //   }
+
+    
+
+        
+
+</script>

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Project management</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+<body>
+
+<div class="container">
+  <!-- Trigger the modal with a button -->
+  <!-- <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Open Large Modal</button> -->
+
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Add Project</h4>
+        </div>
+
+        <div class="modal-body">
+            <form method="post" id="form_add_prjct">
+                {% csrf_token %}
+            
+            <div class="row">
+                <div class="col-md-4">
+                    <input type="hidden" name="id" id="id" value="" style="width: 200px;">
+                    <div class="form-group first">
+                        <p for="title">Title :</p>                  
+                          <input type="text" name="title" id="title" value="" style="width: 200px;">
+                      </div>
+                      <div class="form-group first">
+                        <p for="description">Description :</p>
+                        <textarea type="text" name="description" id="description" value="" style="height: 83px;width: 250px;"></textarea>
+                      </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group first">
+                        <p for="startdate">Start Date :</p>                  
+                          <input type="date" name="startdate" id="startdate" value="" style="width: 200px;">
+                      </div>
+                      <div class="form-group first">
+                        <p for="enddate">End Date :</p>
+                        <input type="date" name="enddate" id="enddate" value="" style="width: 200px;">
+                      </div>
+                      <div class="form-group first">
+                        <p for="status">Status :</p>
+                            <select id="status" name="status">
+                                <option value="pending" selected>Pending</option>
+                                <option value="inprogress">In Progress</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                      </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group first">
+                        <p for="assignedto">Assigned To :</p>                  
+                          <!-- <input type="" name="assignedto" id="assignedto" value="" style="width: 200px;"> -->
+
+                          <!-- <label for="user">Select Users:</label>
+                            <select id="user">
+                                {% for data in user_data %}
+
+                                    <option value={{data.0}}>{{data.1}}</option>
+                                {% endfor %}
+                            </select>
+
+                            <br> -->
+
+                            <label for="user">
+                                {% for data in user_data %}
+                                <input type="checkbox" value={{data.0}} class="user_chkbox"  />
+                                <span>{{data.1}}</span>
+                                {% endfor %}
+                              </label><br>
+
+                            
+                    </div>
+                </div>
+
+                <button type="button" class="btn" id="addproject">Add</button>
+                <button type="button" class="btn" id="updateproject" style="display:none;">Update</button>
+                <!-- <span type="button" class="btn" id="addproject">Add</span>
+                <span type="button" class="btn" id="updateproject">Update</span> -->
+                <button type="button" class="btn" id="clearproject">Clear</button>
+            </div>
+        </form>
+        </div>
+
+        <table id="id_prj_list">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Staus</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in list_data %}
+                    <tr>
+                        <td>{{ data.title }}</td>
+                        <td>{{ data.description }}</td>
+                        <td>{{ data.startdate|date:"d/m/Y"}}</td>
+                        <td>{{ data.enddate|date:"d/m/Y"}}</td>
+                        <td>{{ data.status}}</td>
+                        <td>
+                            <input type="submit" value="Edit" class="btn" id="edit_data" data-action="edit" data-id="{{data.id}}" data-title="{{data.title}}" data-description="{{data.description}}" data-startdate="{{data.startdate|date:'Y-m-d'}}" data-enddate="{{data.enddate|date:'Y-m-d'}}" data-status="{{data.status}}" data-user="{{data.user}}">
+                            <input type="submit" value="Delete" class="btn" id="delete_data" data-action="delete" data-id="{{data.id}}">
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align: center;">No data found.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
+
+<script>
+    
+    $('#addproject').on('click',function(e){
+        e.preventDefault()
+
+        var title = $('#title').val()
+        var description = $('#description').val()
+        var stardate = $('#startdate').val()
+        var enddate = $('#enddate').val()
+        var status = $('#status').val()
+        
+        var checkedValues = [];
+        $('.user_chkbox').each(function() {
+            if ($(this).is(':checked')) {
+                checkedValues.push($(this).val());
+            }        
+        })    
+        console.log(checkedValues)
+        var url = "{% url 'dashboard:addproject' %}"; 
+        var csrfToken = $('[name="csrfmiddlewaretoken"]').val();
+
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: {
+                "title": title,
+                "description": description,
+                "stardate": stardate,
+                "enddate": enddate,
+                "status": status,
+                "checkedValues": checkedValues,
+            },
+            headers: {
+                        "X-CSRFToken": csrfToken
+                    },
+            success: function (data) {
+                console.log(data);
+                if(data.status == 1){
+                    $('#form_add_prjct')[0].reset()
+                    toastr.success(data.message)
+                    // updateTable()
+                }
+                else if(data.status == -1){
+                    toastr.error(data.message)
+                }
+                else if(data.status == -2){
+                    toastr.error(data.message)
+                }
+                else if(data.status == -3){
+                    toastr.error(data.message)
+                }
+                else{
+                    toastr.error(data.message)
+                }
+                
+                
+            },
+        });
+
+
+    })
+    
+
+
+    $('#user').on('change', function() {
+        var selectedValue = $(this).val();
+        $('#textbox').val($('#textbox').val()+ selectedValue + ',' );
+    });
+
+    $('#clearproject').on('click', function() {
+        $('#form_add_prjct')[0].reset()
+        $('#addproject').css("display", "");
+        $('#updateproject').css("display", "none");
+    });
+
+
+    $('body').on('click','#edit_data',function(e){
+        e.preventDefault()
+
+        $('#form_add_prjct')[0].reset()
+        $('#addproject').css("display", "none");
+        $('#updateproject').css("display", "");
+
+        var id = $(this).data('id')
+        var title = $(this).data('title')
+        var description = $(this).data('description')
+        var startdate = $(this).data('startdate')
+        var enddate = $(this).data('enddate')
+        var status = $(this).data('status')
+
+        var url = "{% url 'dashboard:getupdatedata' %}"; 
+        var csrfToken = $('[name="csrfmiddlewaretoken"]').val();
+
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: {
+                "id": id,
+            },
+            headers: {
+                        "X-CSRFToken": csrfToken
+                    },
+            success: function (data) {
+                console.log(data);
+                if(data.status == 1){
+
+                    var selectedUserValues = data.users; 
+                    
+                    for (var i = 0; i < selectedUserValues.length; i++) {
+                        var valueToCheck = selectedUserValues[i];                        
+                        $('.user_chkbox[value="' + valueToCheck + '"]').prop('checked', true);
+                    }
+
+                    $('#title').val(title)
+                    $('#description').val(description)
+                    $('#startdate').val(startdate)
+                    $('#enddate').val(enddate)
+                    $('#status').val(status)
+                    $('#id').val(id)
+
+                    // updateTable()
+                } 
+                else{
+                    toastr.error(data.message)
+                }
+            },
+        });
+    })
+
+
+    $('#updateproject').on('click',function(e){
+        e.preventDefault()       
+
+        var title = $('#title').val()
+        var description = $('#description').val()
+        var stardate = $('#startdate').val()
+        var enddate = $('#enddate').val()
+        var status = $('#status').val()
+        var id = $('#id').val()
+        
+        var checkedValues = [];
+        $('.user_chkbox').each(function() {
+            if ($(this).is(':checked')) {
+                checkedValues.push($(this).val());
+            }        
+        })    
+        console.log(checkedValues)
+        var url = "{% url 'dashboard:updateproject' %}"; 
+        var csrfToken = $('[name="csrfmiddlewaretoken"]').val();
+
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: {
+                "title": title,
+                "description": description,
+                "stardate": stardate,
+                "enddate": enddate,
+                "status": status,
+                "checkedValues": checkedValues,
+                "id":id
+            },
+            headers: {
+                        "X-CSRFToken": csrfToken
+                    },
+            success: function (data) {
+                console.log(data);
+                if(data.status == 1){
+                    $('#addproject').css("display", "");
+                    $('#updateproject').css("display", "none");
+                    $('#form_add_prjct')[0].reset()
+                    toastr.success(data.message)
+                    // updateTable()
+                }
+                else if(data.status == -1){
+                    toastr.error(data.message)
+                }
+                else if(data.status == -2){
+                    toastr.error(data.message)
+                }
+                else{
+                    toastr.error(data.message)
+                }          
+                
+            },
+        });
+    })
+
+    $('body').on('click','#delete_data', function() {
+        var id = $(this).data('id');
+        var url = "{% url 'dashboard:deleteproject' %}"; 
+        var csrfToken = $('[name="csrfmiddlewaretoken"]').val();
+
+        swal.fire({
+            title: "Are you sure?",
+            showCancelButton: true,
+            confirmButtonText: "Delete",
+        }).then((result) => {
+            console.log(result)
+            if (result.isConfirmed){
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: {
+                    "id":id
+                },
+                headers: {
+                            "X-CSRFToken": csrfToken
+                        },
+                success: function (data) {
+                    console.log(data);
+                    if(data.status == 1){
+                        $('#form_add_prjct')[0].reset()
+                        toastr.success(data.message)
+                        // updateTable()
+                    }
+                    else if(data.status == -1){
+                        toastr.error(data.message)
+                    }
+                    else{
+                        toastr.error(data.message)
+                    }                       
+                },
+            });
+        }
+        });      
+        
+    });
+
+
+//     function updateTable() {
+//     var url = "{% url 'dashboard:updatetable' %}"; 
+//     $.ajax({
+//       url: url, 
+//       method: 'GET',
+//       success: function(data) {
+//         console.log(data,'this is data')
+//         // Clear the existing table rows
+//         $('#id_prj_list tbody').empty();
+
+//         // Iterate through the data and add rows to the table
+//         $.each(data, function(index, item) {
+//             $('#id_prj_list tbody').append('<tr><td>' + item.title + '</td><td>' + item.description + '</td><td>' + item.startdate + '</td> <td>' + item.enddate + '</td> <td>' + item.status + '</td><td> <input type="submit" value="Edit" class="btn" id="edit_data" data-action="edit" data-id="' + item.id + '" data-title="' + item.title + '" data-description="' + item.description + '" data-startdate="' + item.startdate + '" data-enddate="' + item.enddate + '" data-status="' + item.status + '" ><input type="submit" value="Delete" class="btn" id="delete_data" data-action="delete" data-id="' + item.id + '"> </td></tr>');
+//         });
+//       }
+//     });
+//   }
+
+    
+
+        
+
+</script>
