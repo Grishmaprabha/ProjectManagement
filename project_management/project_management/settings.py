@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import os
+from datetime import datetime, timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -128,4 +129,27 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'account.CustomUser' 
+
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587 
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'greeshma150295@gmail.com'
+EMAIL_HOST_PASSWORD = 'luvuamma'
+# DEFAULT_FROM_EMAIL = ''
+EMAIL_SUBJECT_PREFIX = 'Gentle Remainder'
+
+
+CELERY_BEAT_SCHEDULE = {
+    'check-due-dates': {
+        'task': 'project_management.tasks.check_due_dates',
+        'schedule': timedelta(minutes=15),  
+        # 'schedule': timedelta(days=1), 
+    },
+}
+
+
+
+
 

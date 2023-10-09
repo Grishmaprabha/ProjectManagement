@@ -236,7 +236,10 @@
 
     $('body').on('click','#edit_taskdata',function(e){
         e.preventDefault()
+
+        $('#tasklist').click()
         // $('#taskprojects').trigger('change')
+
 
         if($('#edit_taskdata').data('action') == 'home_edit'){
             $('#myTaskModal').modal('show')
@@ -281,7 +284,7 @@
 
                     // $('#taskprojects').trigger('change')
                     $('#tasklist').empty()
-                    var option = '<option value="' + data.id + '">' + data.task + '</option>';
+                    var option = '<option value="' + data.task.id + '">' + data.task.list + '</option>';
                         $('#tasklist').append(option);
 
                         // $('#taskprojects').trigger('change')

@@ -6,8 +6,19 @@ from dashboard.models import Project,List,Task,Subtask
 from django.contrib.auth.decorators import login_required
 import json
 from django.http import JsonResponse
+from django.core.mail import send_mail
+from datetime import datetime, timedelta
 
-from datetime import datetime
+
+from celery import shared_task
+from datetime import datetime, timedelta
+from django.core.mail import send_mail
+from project_management.settings import EMAIL_HOST_USER
+
+import smtplib
+from email.mime.text import MIMEText
+
+
 
 
 
@@ -263,8 +274,9 @@ def updatelist_data(request):
         task = Task.objects.filter(id=id).values('task_list')
         print(task)
         task = task[0]['task_list']
-        list_data = List.objects.get(id=task).list
-        return JsonResponse({'status': '1' , 'task':list_data,'task_id':task})          
+        # list_data = List.objects.get(id=task).list
+        list_data = List.objects.filter(id=task).values('id','list')
+        return JsonResponse({'status': '1' , 'task':list_data[0],'task_id':task})          
         
     except:
         return JsonResponse({'status': '0' , 'message': 'Some error occured'})
@@ -285,7 +297,8 @@ def update_task(request):
             
             if title == '':
                 return JsonResponse({'status': '-1' , 'message': 'Title cannot be empty'})
-            
+            if list_data == '':
+                return JsonResponse({'status': '-1' , 'message': 'List cannot be empty'})
             project_instance = Project.objects.get(id=project)  
             list_instance = List.objects.get(id=list_data) 
             
@@ -386,4 +399,69 @@ def delete_subtask(request):
             return JsonResponse({'status': '-1' , 'message': 'Delete unsucessfull'})
     except:
         return JsonResponse({'status': '0' , 'message': 'Some error occured'})
+
+
+
+# @shared_task
+
+
+def check_due_dates():
+    today = datetime.now().date()
+    due_date = today + timedelta(days=5) 
+    if due_date == today:
+        subject = 'Gentle Reminder'
+        message = 'This is a reminder for your upcoming due date.'
+        from_email = EMAIL_HOST_USER
+        current_date = datetime.now()
+        check_date = current_date + timedelta(days=3)
+        recipient_list = []
+        # recipient_list = ['greeshmaprabha1502@gmail.com']
+        tasks_due_soon = Task.objects.filter(due_date=check_date)
+        for task in tasks_due_soon:
+            user_data = task.project.user.all().first()
+            if user_data:
+                recipient_list.append(user_data.email)
+                
+        send_mail(subject, message, from_email, recipient_list)
+        
+
+def check_due_dates():
+    overdue_items = get_overdue_items()
+
+    if overdue_items:
+        smtp_server = "smtp.gmail.com"
+        smtp_port = 587
+        sender_email = "greeshma150295@gmail.com"
+        sender_password = "luvuamma"
+        receiver_email = "receiver@example.com"
+
+        subject = "Gentle Reminder"
+        # message = "This is a reminder for your upcoming due date."
+        message = "The following items are overdue:\n\n" + "\n".join(overdue_items[0])
+        msg = MIMEText(message)
+        msg["Subject"] = subject
+        msg["From"] = sender_email
+        msg["To"] = receiver_email
+
+        # Connect to the SMTP server and send the email
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            server.starttls()
+            server.login(sender_email, sender_password)
+            server.sendmail(sender_email, receiver_email, msg.as_string())
+
+def get_overdue_items():
     
+    current_date = datetime.now()
+    check_date = current_date + timedelta(days=3)
+    recipient_list = []
+    tasks_due_soon = Task.objects.filter(due_date=check_date)
+    for task in tasks_due_soon:
+        user_data = task.project.user.all().first()
+        if user_data:
+            task_name = task.title
+            recipient_list.append(task_name, user_data.email)
+
+    return recipient_list
+
+check_due_dates()
+ 
