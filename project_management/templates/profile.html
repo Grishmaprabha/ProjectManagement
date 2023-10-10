@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Profile</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+<body>
+
+<div class="container">
+  <!-- Trigger the modal with a button -->
+  <!-- <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Open Large Modal</button> -->
+
+  <!-- Modal -->
+  <div class="modal fade" id="myProfileModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" id= "id_close_profile" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Profile</h4>
+        </div>
+
+        <div class="modal-body">
+            <form method="post" id="form_profile">
+                {% csrf_token %}
+            
+            <div class="row">
+                <div class="col-md-4">
+                    <input type="hidden" name="profileid" id="profileid" value="{{profile.0.id}}" >
+                    <div class="form-group first">
+                        <p for="username">User :</p>                  
+                          <input type="text" name="username" id="username" value="{{profile.0.username}}" style="width: 200px;" readonly >
+                      </div>
+                    <div class="form-group first">
+                        <p for="useremail">Email :</p>                  
+                          <input type="text" name="useremail" id="useremail" value="{{profile.0.email}}" style="width: 300px;" readonly>
+                      </div>
+
+                      <div class="form-group first">
+                        <p for="userrole">Role :</p>                  
+                          <input type="text" name="userrole" id="userrole" value="{{profile.0.role}}" style="width: 200px;" readonly>
+                      </div>
+                    <div id="id_reset_pwd" style="display: none;">
+                        <div class="form-group first">
+                            <p for="pwd">Password :</p>                  
+                            <input type="password" name="pwd" id="pwd" value="" style="width: 200px;"  >
+                        </div>
+                        <div class="form-group first">
+                            <p for="cnfpwd">Confirm password :</p>                  
+                            <input type="password" name="cnfpwd" id="cnfpwd" value="" style="width: 200px;" >
+                        </div>
+                    </div>
+
+                </div>
+
+                <button type="button" class="btn" id="resetpwd">Reset Password</button>
+                <button type="button" class="btn" id="updateprofile">Update Data</button>
+                <button type="button" class="btn" id="updatedata" style="display: none;">Update</button>
+                
+               
+                <!-- <button type="button" class="btn" id="clearlist">Clear</button> -->
+            </div>
+        </form>
+        </div>
+
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" id="profile_close" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
+
+<script>
+
+    $('#profile_close').on('click',function(e){
+        e.preventDefault()
+        $('#updatedata').css("display", "none");
+        $('#updateprofile').css("display", "");
+        $('#resetpwd').css("display", "");
+        $('#id_reset_pwd').css("display", "none");  
+    })
+
+    $('#id_close_profile').on('click',function(e){
+        e.preventDefault()
+        $('#updatedata').css("display", "none");
+        $('#updateprofile').css("display", "");
+        $('#resetpwd').css("display", "");
+        $('#id_reset_pwd').css("display", "none");  
+    })
+
+    $('#updateprofile').on('click',function(e){
+        e.preventDefault()
+        $('#username').prop('readonly', false);
+        $('#useremail').prop('readonly', false);
+        $('#userrole').prop('readonly', false);
+        $('#updatedata').css("display", "");
+        $('#updateprofile').css("display", "none");
+        $('#resetpwd').css("display", "none");
+    })
+
+    $('#updatedata').on('click',function(e){
+        e.preventDefault()
+        var username = $('#username').val()
+        var email = $('#useremail').val()
+        var role = $('#userrole').val()
+        var id = $('#profileid').val()
+        var pwd = $('#pwd').val()
+        var cnfpwd = $('#cnfpwd').val()
+        $('#id_reset_pwd').css("display", "none");        
+
+
+        var url = "{% url 'dashboard:updateprofile' %}"; 
+        var csrfToken = $('[name="csrfmiddlewaretoken"]').val();
+
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: {
+                "username": username,
+                "email": email,
+                "role": role,
+                "id":id,
+                "pwd":pwd,
+                "cnfpwd":cnfpwd
+            },
+            headers: {
+                        "X-CSRFToken": csrfToken
+                    },
+            success: function (data) {
+                console.log(data);
+                if(data.status == 1){
+                    window.location.href = '/logout/'
+                    $('#updatedata').css("display", "none");
+                    $('#updateprofile').css("display", "");
+                    $('#resetpwd').css("display", "");
+                    toastr.success(data.message)
+                }
+                else if(data.status == -1){
+                    toastr.error(data.message)
+                }
+                else{
+                    toastr.error(data.message)
+                }          
+                
+            },
+        });
+    })
+
+    $('#resetpwd').on('click',function(e){
+        e.preventDefault()
+        $('#id_reset_pwd').css("display", "");
+        $('#updatedata').css("display", "");
+        $('#resetpwd').css("display", "none");
+        $('#updateprofile').css("display", "none");
+    })
+
+    
+    $('#addlist').on('click',function(e){
+        e.preventDefault()
+
+        var project = $('#projects').val()
+        var list = $('#list').val()
+
+        var url = "{% url 'dashboard:addlist' %}"; 
+        var csrfToken = $('[name="csrfmiddlewaretoken"]').val();
+
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: {
+                "project": project,
+                "list": list,
+            },
+            headers: {
+                        "X-CSRFToken": csrfToken
+                    },
+            success: function (data) {
+                console.log(data);
+                if(data.status == 1){
+                    $('#form_add_list')[0].reset()
+                    toastr.success(data.message)
+                    // updateTable()
+                }
+                else if(data.status == -1){
+                    toastr.error(data.message)
+                }
+                else if(data.status == -2){
+                    toastr.error(data.message)
+                }
+                else{
+                    toastr.error(data.message)
+                }          
+                
+            },
+        });
+
+
+    })
+    
+
+
+    $('#clearlist').on('click', function() {
+        $('#form_add_list')[0].reset()
+        $('#addlist').css("display", "");
+        $('#updatelist').css("display", "none");
+    });
+
+    $('body').on('click','#edit_listdata',function(e){
+        e.preventDefault()
+
+        $('#form_add_list')[0].reset()
+        $('#addlist').css("display", "none");
+        $('#updatelist').css("display", "");
+
+        var id = $(this).data('id')
+        var project = $(this).data('project')
+        var list = $(this).data('list')
+
+        $('#listid').val(id)
+        $('#projects').val(project)
+        $('#list').val(list)     
+        
+    })
+
+
+    $('#updatelist').on('click',function(e){
+        e.preventDefault()       
+
+        var list = $('#list').val()
+        var project = $('#projects').val()
+        var id = $('#listid').val()
+        
+        var url = "{% url 'dashboard:updatelist' %}"; 
+        var csrfToken = $('[name="csrfmiddlewaretoken"]').val();
+
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: {
+                "list": list,
+                "project": project,
+                "id": id
+            },
+            headers: {
+                        "X-CSRFToken": csrfToken
+                    },
+            success: function (data) {
+                console.log(data);
+                if(data.status == 1){
+                    $('#addlist').css("display", "");
+                    $('#updatelist').css("display", "none");
+                    $('#form_add_list')[0].reset()
+                    toastr.success(data.message)
+                }
+                else if(data.status == -1){
+                    toastr.error(data.message)
+                }
+                else{
+                    toastr.error(data.message)
+                }          
+                
+            },
+        });
+    })
+
+    $('body').on('click','#delete_listdata', function() {
+        var id = $(this).data('id');
+        var url = "{% url 'dashboard:deletelist' %}"; 
+        var csrfToken = $('[name="csrfmiddlewaretoken"]').val();
+
+        swal.fire({
+            title: "Are you sure?",
+            showCancelButton: true,
+            confirmButtonText: "Delete",
+        }).then((result) => {
+            console.log(result)
+            if (result.isConfirmed){
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: {
+                    "id":id
+                },
+                headers: {
+                            "X-CSRFToken": csrfToken
+                        },
+                success: function (data) {
+                    console.log(data);
+                    if(data.status == 1){
+                        $('#form_add_list')[0].reset()
+                        toastr.success(data.message)
+                    }
+                    else if(data.status == -1){
+                        toastr.error(data.message)
+                    }
+                    else{
+                        toastr.error(data.message)
+                    }                       
+                },
+            });
+        }
+        });      
+        
+    });
+
+
+    
+
+        
+
+</script>

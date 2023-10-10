@@ -44,9 +44,13 @@ tr:nth-child(even) {
         {% else %}
             <p style="text-align: end;">ROLE : USER</p>
         {% endif %}
+        <p style="text-align: end;" data-toggle="modal" data-target="#myProfileModal"><a class="btn btn-primary">Profile</a></p>
         <p style="text-align: end;"><a href="{% url 'logout' %}" class="btn btn-primary">Logout</a></p>
         
     </header>
+    <!-- <p style="text-align: end;" type="button" class="btn" data-toggle="modal" data-target="#myProfileModal">Logout</p> -->
+    <!-- <button style="text-align: end;" type="button" class="btn" data-toggle="modal" data-target="#myProfileModal">Profile</button> -->
+        
 
     <div>
         {% if dataReceived.role == 'mngr' %}
@@ -129,6 +133,7 @@ tr:nth-child(even) {
 {% include 'addlist.html' %}
 {% include 'addtask.html' %}
 {% include 'subtask.html' %}
+{% include 'profile.html' %}
 </html>
 
 <script>

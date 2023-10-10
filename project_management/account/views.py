@@ -23,6 +23,7 @@ def home(request):
     status_filter = request.GET.get('status')
     keyword = request.GET.get('keyword')
     data_received = request.session.get('user_data')
+    user_profile = CustomUser.objects.filter(username=data_received['username']).values('id','username','email','role')
     user_data = CustomUser.objects.all().values_list('id','username')
     list_data = Project.objects.all().values('id','title','description','startdate','enddate','status')
     datalist_list = List.objects.all().annotate(project_title=F('project__title')).values('id', 'list', 'project_title','project_id')
@@ -44,7 +45,7 @@ def home(request):
         
     # subtask = Subtask.objects.all().values('title','description','status','due_date','parent_task')
     subtask = Subtask.objects.annotate(task_name=F('parent_task__title')).values('id','title', 'description', 'status', 'due_date', 'parent_task_id','task_name')   
-    return render(request, 'home.html', {'dataReceived': data_received,'user_data':user_data,'list_data':list_data,'list':datalist_list,'projects':project_user,'task_data':combined_task_data,'subtask':subtask})
+    return render(request, 'home.html', {'dataReceived': data_received,'user_data':user_data,'list_data':list_data,'list':datalist_list,'projects':project_user,'task_data':combined_task_data,'subtask':subtask,'profile':user_profile})
 
 
 def register(request):

@@ -5,18 +5,22 @@ from account.models import CustomUser
 from dashboard.models import Project,List,Task,Subtask
 from django.contrib.auth.decorators import login_required
 import json
-from django.http import JsonResponse
+from django.http import JsonResponse,HttpResponse
 from django.core.mail import send_mail
 from datetime import datetime, timedelta
-
+import ssl
 
 from celery import shared_task
 from datetime import datetime, timedelta
 from django.core.mail import send_mail
-from project_management.settings import EMAIL_HOST_USER
+from django.utils import timezone
+# from project_management.settings import EMAIL_HOST_USER
 
 import smtplib
 from email.mime.text import MIMEText
+
+
+from django.core.mail import send_mail
 
 
 
@@ -401,67 +405,83 @@ def delete_subtask(request):
         return JsonResponse({'status': '0' , 'message': 'Some error occured'})
 
 
+def update_profile(request):
+    try:
+        import pdb;pdb.set_trace();
+        if request.method == 'POST':
+            username = request.POST.get('username')
+            email = request.POST.get('email')
+            role = request.POST.get('role')
+            id = request.POST.get('id')
+            pwd = request.POST.get('pwd')
+            cnfpwd = request.POST.get('cnfpwd')
+            
+            if username == '':
+                return JsonResponse({'status': '-1' , 'message': 'Username cannot be empty'})
+            
+            if email == '':
+                return JsonResponse({'status': '-2' , 'message': 'Email cannot be empty'})
+            
+            if role == '':
+                return JsonResponse({'status': '-3' , 'message': 'Role cannot be empty'})
+            
+            new_user = CustomUser.objects.filter(username=username).values('id')
+            if new_user:
+                if new_user[0]['id'] != int(id):
+                    return JsonResponse({'status': '-4' , 'message': 'Username alraedy exist'})                                      
+            
+             
+            
+            if pwd:
+                if pwd != cnfpwd:
+                    return JsonResponse({'status': '-5' ,'message': 'password should be same'})
+                else:
+                    CustomUser.objects.filter(id=id).update(username=username,email=email,password=pwd,role=role) 
+            else:
+                CustomUser.objects.filter(id=id).update(username=username,email=email,role=role)                   
+            
+                        
+            return JsonResponse({'status': '1' ,'message': 'Data updated successfully'})
+        else:
+            return JsonResponse({'status': '0' , 'message': 'Update unsucessfull'})
+    except:
+        return JsonResponse({'status': '0' , 'message': 'Some error occured'})
+    
 
-# @shared_task
 
-
-def check_due_dates():
-    today = datetime.now().date()
-    due_date = today + timedelta(days=5) 
-    if due_date == today:
-        subject = 'Gentle Reminder'
-        message = 'This is a reminder for your upcoming due date.'
-        from_email = EMAIL_HOST_USER
+# @login_required
+def send_email_reminder():
+    # import pdb;pdb.set_trace();
+    try:
+        
+        ssl_context = ssl.create_default_context()
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
+                
         current_date = datetime.now()
         check_date = current_date + timedelta(days=3)
         recipient_list = []
-        # recipient_list = ['greeshmaprabha1502@gmail.com']
         tasks_due_soon = Task.objects.filter(due_date=check_date)
         for task in tasks_due_soon:
             user_data = task.project.user.all().first()
             if user_data:
-                recipient_list.append(user_data.email)
-                
-        send_mail(subject, message, from_email, recipient_list)
+                task_name = task.title
+                recipient_list.append({'name':task_name, 'email':user_data.email})
+        print(recipient_list)
         
-
-def check_due_dates():
-    overdue_items = get_overdue_items()
-
-    if overdue_items:
-        smtp_server = "smtp.gmail.com"
-        smtp_port = 587
-        sender_email = "greeshma150295@gmail.com"
-        sender_password = "luvuamma"
-        receiver_email = "receiver@example.com"
-
         subject = "Gentle Reminder"
-        # message = "This is a reminder for your upcoming due date."
-        message = "The following items are overdue:\n\n" + "\n".join(overdue_items[0])
-        msg = MIMEText(message)
-        msg["Subject"] = subject
-        msg["From"] = sender_email
-        msg["To"] = receiver_email
+        
+        
+        for item in recipient_list:
+            user_email = item['email']
+            message = f"Your task '{item['name']}' is due soon."
+            send_mail(subject, message, 'greeshma150295@gmail.com', [user_email])
 
-        # Connect to the SMTP server and send the email
-        with smtplib.SMTP(smtp_server, smtp_port) as server:
-            server.starttls()
-            server.login(sender_email, sender_password)
-            server.sendmail(sender_email, receiver_email, msg.as_string())
+        return HttpResponse("Email sent successfully!")
+    except:
+        return HttpResponse("Email sent Unsuccessful!")
 
-def get_overdue_items():
-    
-    current_date = datetime.now()
-    check_date = current_date + timedelta(days=3)
-    recipient_list = []
-    tasks_due_soon = Task.objects.filter(due_date=check_date)
-    for task in tasks_due_soon:
-        user_data = task.project.user.all().first()
-        if user_data:
-            task_name = task.title
-            recipient_list.append(task_name, user_data.email)
+# send_email_reminder()
 
-    return recipient_list
 
-check_due_dates()
  

@@ -24,6 +24,10 @@ urlpatterns = [
     path('updatesubtask/', views.update_subtask, name='updatesubtask'),    
     path('deletesubtask/', views.delete_subtask, name='deletesubtask'),
     
+    path('updateprofile/', views.update_profile, name='updateprofile'),
+    
+    
+    
     
     
     
