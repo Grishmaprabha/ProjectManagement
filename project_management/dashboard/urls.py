@@ -26,6 +26,8 @@ urlpatterns = [
     
     path('updateprofile/', views.update_profile, name='updateprofile'),
     
+    path('activitylog/', views.activitylog, name='activitylog'),
+    
     
     
     

@@ -118,7 +118,7 @@
                         <td>{{ data.status}}</td>
                         <td>
                             <input type="submit" value="Edit" class="btn" id="edit_data" data-action="edit" data-id="{{data.id}}" data-title="{{data.title}}" data-description="{{data.description}}" data-startdate="{{data.startdate|date:'Y-m-d'}}" data-enddate="{{data.enddate|date:'Y-m-d'}}" data-status="{{data.status}}" data-user="{{data.user}}">
-                            <input type="submit" value="Delete" class="btn" id="delete_data" data-action="delete" data-id="{{data.id}}">
+                            <input type="submit" value="Delete" class="btn" id="delete_data" data-action="delete" data-title="{{data.title}}" data-id="{{data.id}}">
                         </td>
                     </tr>
                 {% empty %}
@@ -331,6 +331,7 @@
 
     $('body').on('click','#delete_data', function() {
         var id = $(this).data('id');
+        var title = $(this).data('title')
         var url = "{% url 'dashboard:deleteproject' %}"; 
         var csrfToken = $('[name="csrfmiddlewaretoken"]').val();
 
@@ -345,7 +346,8 @@
                 url: url,
                 type: "POST",
                 data: {
-                    "id":id
+                    "id":id,
+                    "title":title
                 },
                 headers: {
                             "X-CSRFToken": csrfToken

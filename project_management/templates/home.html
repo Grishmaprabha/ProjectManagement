@@ -46,6 +46,8 @@ tr:nth-child(even) {
         {% endif %}
         <p style="text-align: end;" data-toggle="modal" data-target="#myProfileModal"><a class="btn btn-primary">Profile</a></p>
         <p style="text-align: end;"><a href="{% url 'logout' %}" class="btn btn-primary">Logout</a></p>
+        <p style="text-align: end;"><a href="{% url 'dashboard:activitylog' %}" class="btn btn-primary">Activity Log</a></p>
+        
         
     </header>
     <!-- <p style="text-align: end;" type="button" class="btn" data-toggle="modal" data-target="#myProfileModal">Logout</p> -->

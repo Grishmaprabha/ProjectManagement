@@ -167,153 +167,153 @@
     })
 
     
-    $('#addlist').on('click',function(e){
-        e.preventDefault()
+    // $('#addlist').on('click',function(e){
+    //     e.preventDefault()
 
-        var project = $('#projects').val()
-        var list = $('#list').val()
+    //     var project = $('#projects').val()
+    //     var list = $('#list').val()
 
-        var url = "{% url 'dashboard:addlist' %}"; 
-        var csrfToken = $('[name="csrfmiddlewaretoken"]').val();
+    //     var url = "{% url 'dashboard:addlist' %}"; 
+    //     var csrfToken = $('[name="csrfmiddlewaretoken"]').val();
 
-        $.ajax({
-            url: url,
-            type: "POST",
-            data: {
-                "project": project,
-                "list": list,
-            },
-            headers: {
-                        "X-CSRFToken": csrfToken
-                    },
-            success: function (data) {
-                console.log(data);
-                if(data.status == 1){
-                    $('#form_add_list')[0].reset()
-                    toastr.success(data.message)
-                    // updateTable()
-                }
-                else if(data.status == -1){
-                    toastr.error(data.message)
-                }
-                else if(data.status == -2){
-                    toastr.error(data.message)
-                }
-                else{
-                    toastr.error(data.message)
-                }          
+    //     $.ajax({
+    //         url: url,
+    //         type: "POST",
+    //         data: {
+    //             "project": project,
+    //             "list": list,
+    //         },
+    //         headers: {
+    //                     "X-CSRFToken": csrfToken
+    //                 },
+    //         success: function (data) {
+    //             console.log(data);
+    //             if(data.status == 1){
+    //                 $('#form_add_list')[0].reset()
+    //                 toastr.success(data.message)
+    //                 // updateTable()
+    //             }
+    //             else if(data.status == -1){
+    //                 toastr.error(data.message)
+    //             }
+    //             else if(data.status == -2){
+    //                 toastr.error(data.message)
+    //             }
+    //             else{
+    //                 toastr.error(data.message)
+    //             }          
                 
-            },
-        });
+    //         },
+    //     });
 
 
-    })
+    // })
     
 
 
-    $('#clearlist').on('click', function() {
-        $('#form_add_list')[0].reset()
-        $('#addlist').css("display", "");
-        $('#updatelist').css("display", "none");
-    });
+    // $('#clearlist').on('click', function() {
+    //     $('#form_add_list')[0].reset()
+    //     $('#addlist').css("display", "");
+    //     $('#updatelist').css("display", "none");
+    // });
 
-    $('body').on('click','#edit_listdata',function(e){
-        e.preventDefault()
+    // $('body').on('click','#edit_listdata',function(e){
+    //     e.preventDefault()
 
-        $('#form_add_list')[0].reset()
-        $('#addlist').css("display", "none");
-        $('#updatelist').css("display", "");
+    //     $('#form_add_list')[0].reset()
+    //     $('#addlist').css("display", "none");
+    //     $('#updatelist').css("display", "");
 
-        var id = $(this).data('id')
-        var project = $(this).data('project')
-        var list = $(this).data('list')
+    //     var id = $(this).data('id')
+    //     var project = $(this).data('project')
+    //     var list = $(this).data('list')
 
-        $('#listid').val(id)
-        $('#projects').val(project)
-        $('#list').val(list)     
+    //     $('#listid').val(id)
+    //     $('#projects').val(project)
+    //     $('#list').val(list)     
         
-    })
+    // })
 
 
-    $('#updatelist').on('click',function(e){
-        e.preventDefault()       
+    // $('#updatelist').on('click',function(e){
+    //     e.preventDefault()       
 
-        var list = $('#list').val()
-        var project = $('#projects').val()
-        var id = $('#listid').val()
+    //     var list = $('#list').val()
+    //     var project = $('#projects').val()
+    //     var id = $('#listid').val()
         
-        var url = "{% url 'dashboard:updatelist' %}"; 
-        var csrfToken = $('[name="csrfmiddlewaretoken"]').val();
+    //     var url = "{% url 'dashboard:updatelist' %}"; 
+    //     var csrfToken = $('[name="csrfmiddlewaretoken"]').val();
 
-        $.ajax({
-            url: url,
-            type: "POST",
-            data: {
-                "list": list,
-                "project": project,
-                "id": id
-            },
-            headers: {
-                        "X-CSRFToken": csrfToken
-                    },
-            success: function (data) {
-                console.log(data);
-                if(data.status == 1){
-                    $('#addlist').css("display", "");
-                    $('#updatelist').css("display", "none");
-                    $('#form_add_list')[0].reset()
-                    toastr.success(data.message)
-                }
-                else if(data.status == -1){
-                    toastr.error(data.message)
-                }
-                else{
-                    toastr.error(data.message)
-                }          
+    //     $.ajax({
+    //         url: url,
+    //         type: "POST",
+    //         data: {
+    //             "list": list,
+    //             "project": project,
+    //             "id": id
+    //         },
+    //         headers: {
+    //                     "X-CSRFToken": csrfToken
+    //                 },
+    //         success: function (data) {
+    //             console.log(data);
+    //             if(data.status == 1){
+    //                 $('#addlist').css("display", "");
+    //                 $('#updatelist').css("display", "none");
+    //                 $('#form_add_list')[0].reset()
+    //                 toastr.success(data.message)
+    //             }
+    //             else if(data.status == -1){
+    //                 toastr.error(data.message)
+    //             }
+    //             else{
+    //                 toastr.error(data.message)
+    //             }          
                 
-            },
-        });
-    })
+    //         },
+    //     });
+    // })
 
-    $('body').on('click','#delete_listdata', function() {
-        var id = $(this).data('id');
-        var url = "{% url 'dashboard:deletelist' %}"; 
-        var csrfToken = $('[name="csrfmiddlewaretoken"]').val();
+    // $('body').on('click','#delete_listdata', function() {
+    //     var id = $(this).data('id');
+    //     var url = "{% url 'dashboard:deletelist' %}"; 
+    //     var csrfToken = $('[name="csrfmiddlewaretoken"]').val();
 
-        swal.fire({
-            title: "Are you sure?",
-            showCancelButton: true,
-            confirmButtonText: "Delete",
-        }).then((result) => {
-            console.log(result)
-            if (result.isConfirmed){
-            $.ajax({
-                url: url,
-                type: "POST",
-                data: {
-                    "id":id
-                },
-                headers: {
-                            "X-CSRFToken": csrfToken
-                        },
-                success: function (data) {
-                    console.log(data);
-                    if(data.status == 1){
-                        $('#form_add_list')[0].reset()
-                        toastr.success(data.message)
-                    }
-                    else if(data.status == -1){
-                        toastr.error(data.message)
-                    }
-                    else{
-                        toastr.error(data.message)
-                    }                       
-                },
-            });
-        }
-        });      
+    //     swal.fire({
+    //         title: "Are you sure?",
+    //         showCancelButton: true,
+    //         confirmButtonText: "Delete",
+    //     }).then((result) => {
+    //         console.log(result)
+    //         if (result.isConfirmed){
+    //         $.ajax({
+    //             url: url,
+    //             type: "POST",
+    //             data: {
+    //                 "id":id
+    //             },
+    //             headers: {
+    //                         "X-CSRFToken": csrfToken
+    //                     },
+    //             success: function (data) {
+    //                 console.log(data);
+    //                 if(data.status == 1){
+    //                     $('#form_add_list')[0].reset()
+    //                     toastr.success(data.message)
+    //                 }
+    //                 else if(data.status == -1){
+    //                     toastr.error(data.message)
+    //                 }
+    //                 else{
+    //                     toastr.error(data.message)
+    //                 }                       
+    //             },
+    //         });
+    //     }
+    //     });      
         
-    });
+    // });
 
 
     

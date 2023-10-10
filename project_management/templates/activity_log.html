@@ -1,0 +1,11 @@
+<ul>
+    {% for entry in activity_entries %}
+        <li>
+            {{ entry.timestamp }} - {{ entry.user.username }} - {{ entry.action }}: {{ entry.details }}
+        </li>
+    {% endfor %}
+</ul>
+
+
+<p style="text-align: end;"><a href="{% url 'home' %}" class="btn btn-primary">Home</a></p>
+        

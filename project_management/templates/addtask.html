@@ -111,7 +111,7 @@
                         <td>
                             <input type="submit" value="Edit" class="btn" id="edit_taskdata" data-action="edit" data-id="{{data.id}}" 
                             data-prjtitle="{{data.project__id}}" data-listname="{{data.task_list}}" data-title="{{data.title}}" data-description="{{data.description}}" data-duedate="{{data.due_date|date:'Y-m-d'}}"  data-status="{{data.status}}" >
-                            <input type="submit" value="Delete" class="btn" id="delete_taskdata" data-action="delete" data-id="{{data.id}}">
+                            <input type="submit" value="Delete" class="btn" id="delete_taskdata" data-title="{{data.title}}" data-action="delete" data-id="{{data.id}}">
                             
                         </td>
                     </tr>
@@ -366,6 +366,7 @@
 
     $('body').on('click','#delete_taskdata', function() {
         var id = $(this).data('id');
+        var title = $(this).data('title');
         var url = "{% url 'dashboard:deletetask' %}"; 
         var csrfToken = $('[name="csrfmiddlewaretoken"]').val();
 
@@ -380,7 +381,8 @@
                 url: url,
                 type: "POST",
                 data: {
-                    "id":id
+                    "id":id,
+                    "title":title
                 },
                 headers: {
                             "X-CSRFToken": csrfToken

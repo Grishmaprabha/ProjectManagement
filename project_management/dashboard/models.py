@@ -1,5 +1,6 @@
 from django.db import models
 from account.models import User,CustomUser
+from django.utils import timezone
 
 # Create your models here.
 
@@ -73,3 +74,18 @@ class Subtask(models.Model):
 
     def __str__(self):
         return self.title
+    
+class ActivityLog(models.Model):
+    ACTION_CHOICES = (
+        ('Task Created', 'Task Created'),
+        ('Task Updated', 'Task Updated'),
+        ('Task Deleted', 'Task Deleted'),
+        # Add more choices for other actions
+    )
+
+    action = models.CharField(max_length=50, choices=ACTION_CHOICES)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True)
+    timestamp = models.DateTimeField(default=timezone.now)
+    details = models.TextField()
+    

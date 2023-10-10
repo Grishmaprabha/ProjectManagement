@@ -2,14 +2,14 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login,logout
 from django.contrib.auth.models import User
 from account.models import CustomUser
-from dashboard.models import Project,List,Task,Subtask
+from dashboard.models import Project,List,Task,Subtask,ActivityLog
 from django.contrib.auth.decorators import login_required
 import json
 from django.http import JsonResponse,HttpResponse
 from django.core.mail import send_mail
 from datetime import datetime, timedelta
 import ssl
-
+from django.conf import settings
 from celery import shared_task
 from datetime import datetime, timedelta
 from django.core.mail import send_mail
@@ -29,11 +29,6 @@ from django.core.mail import send_mail
 
 # Create your views here.
 
-# def view_project(request):
-#     import pdb;pdb.set_trace();
-#     list_data = Project.objects.all()
-#     return render(request, 'home.html',  {'list_data':list_data})
-
 
 def add_project(request):
     # import pdb;pdb.set_trace();
@@ -45,7 +40,8 @@ def add_project(request):
             enddate = request.POST.get('enddate')
             status = request.POST.get('status')
             checkedValues = request.POST.getlist('checkedValues[]')
-            
+            user_data = request.session.get('user_data')
+
             if title == '':
                 return JsonResponse({'status': '-1' , 'message': 'Title cannot be empty'})
             prj_name = Project.objects.filter(title=title)
@@ -71,6 +67,15 @@ def add_project(request):
                                             status=status)
             project.user.set(checkedValues)
             
+            user_id = CustomUser.objects.filter(username=user_data["username"]).values('id')
+            user_instance = CustomUser.objects.get(id=user_id[0]['id'])
+            
+            ActivityLog.objects.create(
+                    action='Project Created',
+                    user=user_instance,
+                    details=f'Project "{title}" created by - {user_data["username"]}.'
+                )
+            
                         
             return JsonResponse({'status': '1' ,'message': 'Data saved successfully'})
         else:
@@ -91,7 +96,8 @@ def update_project(request):
             status = request.POST.get('status')
             checkedValues = request.POST.getlist('checkedValues[]')
             id = request.POST.get('id')
-            
+            user_data = request.session.get('user_data')
+
             if title == '':
                 return JsonResponse({'status': '-1' , 'message': 'Title cannot be empty'})
          
@@ -114,6 +120,15 @@ def update_project(request):
                                                     enddate=enddate,
                                                     status=status
                                                 )
+            
+            user_id = CustomUser.objects.filter(username=user_data["username"]).values('id')
+            user_instance = CustomUser.objects.get(id=user_id[0]['id'])
+            
+            ActivityLog.objects.create(
+                    action='Project Updated',
+                    user=user_instance,
+                    details=f'Project "{title}" updated by - {user_data["username"]}.'
+                )
 
             project = Project.objects.get(id=id)
             project.user.set(checkedValues)
@@ -130,9 +145,20 @@ def delete_project(request):
     try:
         # import pdb;pdb.set_trace();
         if request.method == 'POST':
-            id = request.POST.get('id')         
+            id = request.POST.get('id')  
+            title = request.POST.get('title')       
+            user_data = request.session.get('user_data')
+
+            Project.objects.filter(id=id).delete()  
             
-            Project.objects.filter(id=id).delete()                        
+            user_id = CustomUser.objects.filter(username=user_data["username"]).values('id')
+            user_instance = CustomUser.objects.get(id=user_id[0]['id'])
+            
+            ActivityLog.objects.create(
+                    action='Project Deleted',
+                    user=user_instance,
+                    details=f'Project "{title}" deleted by - {user_data["username"]}.'
+                )                      
             return JsonResponse({'status': '1' ,'message': 'Data deleted successfully'})
         else:
             return JsonResponse({'status': '-1' , 'message': 'Delete unsucessfull'})
@@ -245,6 +271,9 @@ def add_task(request):
             duedate = request.POST.get('duedate')
             status = request.POST.get('status')
             
+            user_data = request.session.get('user_data')
+            
+            
             if project == '':
                 return JsonResponse({'status': '-1' , 'message': 'Project cannot be empty'})
             task_name = Task.objects.filter(title=title)
@@ -262,6 +291,14 @@ def add_task(request):
             
             Task.objects.create(title=title,description=description,due_date=duedate,status=status,project=project_instance,task_list=list_instance)  
             
+            user_id = CustomUser.objects.filter(username=user_data["username"]).values('id')
+            user_instance = CustomUser.objects.get(id=user_id[0]['id'])
+            
+            ActivityLog.objects.create(
+                    action='Task Created',
+                    user=user_instance,
+                    details=f'Task "{title}" created by - {user_data["username"]}.'
+                )
                         
             return JsonResponse({'status': '1' ,'message': 'Data saved successfully'})
         else:
@@ -298,6 +335,8 @@ def update_task(request):
             duedate = request.POST.get('duedate')
             status = request.POST.get('status')
             id = request.POST.get('id')
+            user_data = request.session.get('user_data')
+
             
             if title == '':
                 return JsonResponse({'status': '-1' , 'message': 'Title cannot be empty'})
@@ -308,6 +347,15 @@ def update_task(request):
             
             Task.objects.filter(id=id).update(title=title,description=description,due_date=duedate,status=status,project=project_instance,task_list=list_instance)            
             
+            user_id = CustomUser.objects.filter(username=user_data["username"]).values('id')
+            user_instance = CustomUser.objects.get(id=user_id[0]['id'])
+            
+            ActivityLog.objects.create(
+                    action='Task Updated',
+                    user=user_instance,
+                    details=f'Task "{title}" updated by - {user_data["username"]}.'
+                )
+
                         
             return JsonResponse({'status': '1' ,'message': 'Data updated successfully'})
         else:
@@ -320,10 +368,25 @@ def delete_task(request):
     try:
         # import pdb;pdb.set_trace();
         if request.method == 'POST':
-            id = request.POST.get('id')         
+            id = request.POST.get('id') 
+            title = request.POST.get('title')
+            user_data = request.session.get('user_data')
+       
             
-            Task.objects.filter(id=id).delete()                        
+            Task.objects.filter(id=id).delete()    
+            
+            user_id = CustomUser.objects.filter(username=user_data["username"]).values('id')
+            user_instance = CustomUser.objects.get(id=user_id[0]['id'])
+            
+            ActivityLog.objects.create(
+                    action='Task Deleted',
+                    user=user_instance,
+                    details=f'Task "{title}" deleted by - {user_data["username"]}.'
+                )
+                                
             return JsonResponse({'status': '1' ,'message': 'Data deleted successfully'})
+            
+
         else:
             return JsonResponse({'status': '-1' , 'message': 'Delete unsucessfull'})
     except:
@@ -339,6 +402,7 @@ def add_subtask(request):
             description = request.POST.get('description')
             duedate = request.POST.get('duedate')
             status = request.POST.get('status')
+            user_data = request.session.get('user_data')
             
             if task == '':
                 return JsonResponse({'status': '-1' ,'message': ' cannot be empty'}) 
@@ -359,6 +423,14 @@ def add_subtask(request):
             
             Subtask.objects.create(title=title,description=description,due_date=duedate,status=status,parent_task=task_instance)  
             
+            user_id = CustomUser.objects.filter(username=user_data["username"]).values('id')
+            user_instance = CustomUser.objects.get(id=user_id[0]['id'])
+            
+            ActivityLog.objects.create(
+                    action='Subtask Created',
+                    user=user_instance,
+                    details=f'Subtask "{title}" created by - {user_data["username"]}.'
+                )
                         
             return JsonResponse({'status': '1' ,'message': 'Data saved successfully'})
         else:
@@ -376,6 +448,7 @@ def update_subtask(request):
             duedate = request.POST.get('duedate')
             status = request.POST.get('status')
             id = request.POST.get('id')
+            user_data = request.session.get('user_data')
             
             if title == '':
                 return JsonResponse({'status': '-1' , 'message': 'Title cannot be empty'})
@@ -384,6 +457,14 @@ def update_subtask(request):
             
             Subtask.objects.filter(id=id).update(title=title,description=description,due_date=duedate,status=status,parent_task=task_instance)            
             
+            user_id = CustomUser.objects.filter(username=user_data["username"]).values('id')
+            user_instance = CustomUser.objects.get(id=user_id[0]['id'])
+            
+            ActivityLog.objects.create(
+                    action='Subtask Updated',
+                    user=user_instance,
+                    details=f'Subtask "{title}" updated by - {user_data["username"]}.'
+                )
                         
             return JsonResponse({'status': '1' ,'message': 'Data updated successfully'})
         else:
@@ -395,9 +476,20 @@ def delete_subtask(request):
     try:
         # import pdb;pdb.set_trace();
         if request.method == 'POST':
-            id = request.POST.get('id')         
+            id = request.POST.get('id')
+            title = request.POST.get('title')         
+            user_data = request.session.get('user_data')
+            Subtask.objects.filter(id=id).delete() 
             
-            Subtask.objects.filter(id=id).delete()                        
+            user_id = CustomUser.objects.filter(username=user_data["username"]).values('id')
+            user_instance = CustomUser.objects.get(id=user_id[0]['id'])
+            
+            ActivityLog.objects.create(
+                    action='Subtask Deleted',
+                    user=user_instance,
+                    details=f'Subtask "{title}" deleted by - {user_data["username"]}.'
+                )
+                                   
             return JsonResponse({'status': '1' ,'message': 'Data deleted successfully'})
         else:
             return JsonResponse({'status': '-1' , 'message': 'Delete unsucessfull'})
@@ -407,7 +499,7 @@ def delete_subtask(request):
 
 def update_profile(request):
     try:
-        import pdb;pdb.set_trace();
+        # import pdb;pdb.set_trace();
         if request.method == 'POST':
             username = request.POST.get('username')
             email = request.POST.get('email')
@@ -436,7 +528,13 @@ def update_profile(request):
                 if pwd != cnfpwd:
                     return JsonResponse({'status': '-5' ,'message': 'password should be same'})
                 else:
-                    CustomUser.objects.filter(id=id).update(username=username,email=email,password=pwd,role=role) 
+                    user = CustomUser.objects.get(id=id)
+                    user.username = username
+                    user.email = email
+                    user.role = role
+                    user.set_password(pwd) 
+                    user.save()
+                    # CustomUser.objects.filter(id=id).update(username=username,email=email,password=pwd,role=role) 
             else:
                 CustomUser.objects.filter(id=id).update(username=username,email=email,role=role)                   
             
@@ -447,21 +545,41 @@ def update_profile(request):
     except:
         return JsonResponse({'status': '0' , 'message': 'Some error occured'})
     
+def activitylog(request):
+    # import pdb;pdb.set_trace();
+    user = request.session.get('user_data')
+    user_id = CustomUser.objects.filter(username=user['username']).values('id')
+    user_projects = Project.objects.filter(user=user_id[0]['id']).values('title')
+    all_activity_entries = []
+    
+    if user_projects:
+        for data in user_projects:
+            team = Project.objects.filter(title=data['title']).values_list('user')
+            
+        for item in team:
+            user_name = CustomUser.objects.filter(id=item[0]).values('id','username')
+            
+            
+            
+            activity_entries = ActivityLog.objects.filter(user=user_name[0]['id']).order_by('-timestamp')
+            all_activity_entries.extend(activity_entries)
+            
+   
+    
+    return render(request, 'activity_log.html', {'activity_entries': all_activity_entries})
 
 
-# @login_required
+
+
 def send_email_reminder():
     # import pdb;pdb.set_trace();
     try:
         
-        ssl_context = ssl.create_default_context()
-        ssl_context.check_hostname = False
-        ssl_context.verify_mode = ssl.CERT_NONE
                 
         current_date = datetime.now()
         check_date = current_date + timedelta(days=3)
         recipient_list = []
-        tasks_due_soon = Task.objects.filter(due_date=check_date)
+        tasks_due_soon = Task.objects.filter(due_date__range=[current_date, check_date])
         for task in tasks_due_soon:
             user_data = task.project.user.all().first()
             if user_data:
@@ -473,15 +591,15 @@ def send_email_reminder():
         
         
         for item in recipient_list:
-            user_email = item['email']
+            user_mail = settings.EMAIL_HOST_USER
+            recepient_email = [item['email']]
             message = f"Your task '{item['name']}' is due soon."
-            send_mail(subject, message, 'greeshma150295@gmail.com', [user_email])
+            send_mail(subject, message, user_mail, recepient_email,fail_silently=False,)
 
         return HttpResponse("Email sent successfully!")
     except:
         return HttpResponse("Email sent Unsuccessful!")
 
-# send_email_reminder()
+send_email_reminder()
 
 
- 
