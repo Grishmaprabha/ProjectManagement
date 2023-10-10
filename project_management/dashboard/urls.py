@@ -27,6 +27,7 @@ urlpatterns = [
     path('updateprofile/', views.update_profile, name='updateprofile'),
     
     path('activitylog/', views.activitylog, name='activitylog'),
+    # path('schedule_email_reminder/', views.schedule_email_reminder, name='schedule_email_reminder'),
     
     
     

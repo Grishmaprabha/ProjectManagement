@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 from django.core.mail import send_mail
 from django.utils import timezone
 # from project_management.settings import EMAIL_HOST_USER
-
+from celery import shared_task
 import smtplib
 from email.mime.text import MIMEText
 
@@ -570,11 +570,10 @@ def activitylog(request):
 
 
 
-
+@shared_task
 def send_email_reminder():
     # import pdb;pdb.set_trace();
-    try:
-        
+    try:        
                 
         current_date = datetime.now()
         check_date = current_date + timedelta(days=3)
@@ -601,5 +600,9 @@ def send_email_reminder():
         return HttpResponse("Email sent Unsuccessful!")
 
 send_email_reminder()
+
+# def schedule_email_reminder(request):
+#     send_email_reminder.delay()
+#     return HttpResponse("Email reminder task scheduled successfully!")
 
 

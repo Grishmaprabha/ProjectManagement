@@ -140,12 +140,9 @@ EMAIL_HOST_USER = 'greeshma150295@gmail.com'
 EMAIL_HOST_PASSWORD = 'dzgczifggsaqqrgy'
 
 
-
-# CELERY_BROKER_URL = 'redis://localhost:6379/0'
-# CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
-
-# # Configure Celery Beat to use the Django database as a scheduler
-# CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+CELERY_BROKER_URL = 'redis://localhost:6379/0' 
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0' 
+CELERY_TIMEZONE = 'UTC'
 
 
 
