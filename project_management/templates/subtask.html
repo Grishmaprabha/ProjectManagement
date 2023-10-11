@@ -19,12 +19,13 @@
   <!-- <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Open Large Modal</button> -->
 
   <!-- Modal -->
-  <div class="modal fade" id="mySubModal" role="dialog">
+  <div class="modal fade" id="mySubModal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-          <h4 class="modal-title">Add Subtask</h4>
+            <h4 class="modal-title">Add Subtask</h4>
+          <!-- <button type="button" class="close" data-dismiss="modal">&times;</button> -->
+          
         </div>
 
         <div class="modal-body">
@@ -75,15 +76,16 @@
                             </select>
                       </div>
                 </div>
-
-                <button type="button" class="btn" id="subaddtask">Add</button>
-                <button type="button" class="btn" id="subupdatetask" style="display:none;">Update</button>
-                <button type="button" class="btn" id="subcleartask">Clear</button>
+                <div style="text-align: end;">
+                    <button type="button" class="btn btn-sm btn-primary" id="subaddtask">Add</button>
+                    <button type="button" class="btn btn-sm btn-primary" id="subupdatetask" style="display:none;">Update</button>
+                    <button type="button" class="btn btn-sm btn-primary" id="subcleartask">Clear</button>
+                </div>
             </div>
             </form>
         </div>
-
-        <table id="id_prj_subtask">
+        <div class="table-responsive">
+        <table id="id_prj_subtask" class="table text-start align-middle table-bordered table-hover mb-0">
             <thead>
                 <tr>
                     <th>Task</th>
@@ -105,8 +107,8 @@
                         <td>{{ data.due_date|date:"d/m/Y"}}</td>
                         <td>{{ data.status}}</td>
                         <td>
-                            <input type="submit" value="Edit" class="btn" id="edit_subtaskdata" data-action="edit" data-id="{{data.id}}" data-task="{{data.task_name}}" data-taskid="{{data.parent_task_id}}" data-title="{{data.title}}" data-description="{{data.description}}" data-duedate="{{data.due_date|date:'Y-m-d'}}"  data-status="{{data.status}}" >
-                            <input type="submit" value="Delete" class="btn" id="delete_subtaskdata" data-title="{{data.title}}" data-action="delete" data-id="{{data.id}}">
+                            <input type="submit" value="Edit" class="btn btn-sm btn-primary" id="edit_subtaskdata" data-action="edit" data-id="{{data.id}}" data-task="{{data.task_name}}" data-taskid="{{data.parent_task_id}}" data-title="{{data.title}}" data-description="{{data.description}}" data-duedate="{{data.due_date|date:'Y-m-d'}}"  data-status="{{data.status}}" >
+                            <input type="submit" value="Delete" class="btn btn-sm btn-primary" id="delete_subtaskdata" data-title="{{data.title}}" data-action="delete" data-id="{{data.id}}">
                         </td>
                     </tr>
                     {% endif %}
@@ -119,20 +121,39 @@
                 {% endfor %}
             </tbody>
         </table>
+        </div>
 
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-sm btn-primary btn-default" data-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
   </div>
 </div>
 
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../static/lib/chart/chart.min.js"></script>
+<script src="../static/lib/easing/easing.min.js"></script>
+<script src="../static/lib/waypoints/waypoints.min.js"></script>
+<script src="../static/lib/owlcarousel/owl.carousel.min.js"></script>
+<script src="../static/lib/tempusdominus/js/moment.min.js"></script>
+<script src="../static/lib/tempusdominus/js/moment-timezone.min.js"></script>
+<script src="../static/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+
+
 </body>
 </html>
 
 <script>
+
 
     $('#subaddtask').on('click',function(e){
         e.preventDefault()
@@ -165,7 +186,7 @@
                 if(data.status == 1){
                     $('#form_add_subtask')[0].reset()
                     toastr.success(data.message)
-                    // updateTable()
+                    reloadSubtaskTable()
                 }
                 else if(data.status == -1){
                     toastr.error(data.message)
@@ -255,11 +276,11 @@
             success: function (data) {
                 console.log(data);
                 if(data.status == 1){
-                    $('#addproject').css("display", "");
-                    $('#updateproject').css("display", "none");
+                    $('#subaddtask').css("display", "");
+                    $('#subupdatetask').css("display", "none");
                     $('#form_add_subtask')[0].reset()
                     toastr.success(data.message)
-                    // updateTable()
+                    reloadSubtaskTable()
                 }
                 else if(data.status == -1){
                     toastr.error(data.message)
@@ -303,7 +324,7 @@
                     if(data.status == 1){
                         $('#form_add_subtask')[0].reset()
                         toastr.success(data.message)
-                        // updateTable()
+                        reloadSubtaskTable()
                     }
                     else if(data.status == -1){
                         toastr.error(data.message)
@@ -318,27 +339,39 @@
         
     });
 
+    function reloadSubtaskTable() {
+        var url = "{% url 'dashboard:get_subtask_data' %}"; 
+        $("#id_prj_subtask tbody").empty();
+        $.ajax({
+            url: url,  
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                var table = $('#id_prj_subtask tbody');
 
-// //     function updateTable() {
-// //     var url = "{% url 'dashboard:updatetable' %}"; 
-// //     $.ajax({
-// //       url: url, 
-// //       method: 'GET',
-// //       success: function(data) {
-// //         console.log(data,'this is data')
-// //         // Clear the existing table rows
-// //         $('#id_prj_list tbody').empty();
-
-// //         // Iterate through the data and add rows to the table
-// //         $.each(data, function(index, item) {
-// //             $('#id_prj_list tbody').append('<tr><td>' + item.title + '</td><td>' + item.description + '</td><td>' + item.startdate + '</td> <td>' + item.enddate + '</td> <td>' + item.status + '</td><td> <input type="submit" value="Edit" class="btn" id="edit_data" data-action="edit" data-id="' + item.id + '" data-title="' + item.title + '" data-description="' + item.description + '" data-startdate="' + item.startdate + '" data-enddate="' + item.enddate + '" data-status="' + item.status + '" ><input type="submit" value="Delete" class="btn" id="delete_data" data-action="delete" data-id="' + item.id + '"> </td></tr>');
-// //         });
-// //       }
-// //     });
-// //   }
-
-    
-
-        
+                $.each(data, function(index, item) {
+                    $.each(item, function(ind, value) {
+                    var row = '<tr>';
+                    row += '<td>' + value.task_name + '</td>';
+                    row += '<td>' + value.title + '</td>';
+                    row += '<td>' + value.description + '</td>';
+                    row += '<td>' + value.due_date + '</td>';
+                    row += '<td>' + value.status + '</td>';
+                    row += '<td>';   
+                                                     
+                    row += '<input type="submit" value="Edit" class="btn btn-sm btn-primary" id="edit_subtaskdata" data-action="edit" data-id="' + value.id + '"  data-task="' + value.task_name + '" data-taskid="' + value.parent_task_id + '" data-title="' + value.title + '" data-description="' + value.description + '" data-duedate="' + value.due_date + '"  data-status="' + value.status + '" >'; 
+                    row += '<input type="submit" value="Delete" class="btn btn-sm btn-primary" id="delete_subtaskdata" data-title="' + value.title+ '" data-action="delete" data-id="' + value.id + '">';
+                    row += '</td>';
+                    row += '</tr>';
+                    table.append(row);
+                    })
+                });
+            },
+            error: function (error) {
+                console.error('Error: ' + error);
+            }
+        });
+    }
+       
 
 </script>

@@ -9,6 +9,7 @@ from django.db.models import F,Subquery, OuterRef
 from dashboard.models import Project,List,Task,Subtask
 from django.contrib.auth.decorators import login_required
 import json
+from datetime import date, timedelta
 
 # Create your views here.
 
@@ -45,7 +46,19 @@ def home(request):
         
     # subtask = Subtask.objects.all().values('title','description','status','due_date','parent_task')
     subtask = Subtask.objects.annotate(task_name=F('parent_task__title')).values('id','title', 'description', 'status', 'due_date', 'parent_task_id','task_name')   
-    return render(request, 'home.html', {'dataReceived': data_received,'user_data':user_data,'list_data':list_data,'list':datalist_list,'projects':project_user,'task_data':combined_task_data,'subtask':subtask,'profile':user_profile})
+    
+    total_project = Project.objects.filter(user=user_id[0]['id']).count()
+    pending_tasks = Task.objects.filter(status='pending', project__user=user_id[0]['id']).count()
+
+
+    today = date.today()
+    three_days_later = today + timedelta(days=3)
+
+    # Perform the query to get tasks with due dates within the next 3 days
+    due_task = Task.objects.filter(due_date__gte=today, due_date__lte=three_days_later).count()
+
+
+    return render(request, 'home.html', {'dataReceived': data_received,'user_data':user_data,'list_data':list_data,'list':datalist_list,'projects':project_user,'task_data':combined_task_data,'subtask':subtask,'profile':user_profile,'prj_count':total_project,'pending_tasks':pending_tasks,'due_task':due_task})
 
 
 def register(request):

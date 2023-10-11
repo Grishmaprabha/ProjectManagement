@@ -18,6 +18,7 @@ from django.utils import timezone
 from celery import shared_task
 import smtplib
 from email.mime.text import MIMEText
+from django.db.models import F,Subquery, OuterRef
 
 
 from django.core.mail import send_mail
@@ -599,10 +600,51 @@ def send_email_reminder():
     except:
         return HttpResponse("Email sent Unsuccessful!")
 
-send_email_reminder()
+# send_email_reminder()
 
 # def schedule_email_reminder(request):
 #     send_email_reminder.delay()
 #     return HttpResponse("Email reminder task scheduled successfully!")
 
 
+# project_list = [{'id': project.id, 'title': project.title, 'description': project.description, 'startdate': project.startdate, 'enddate': project.enddate, 'status': project.status} for project in list_project]
+    
+    # list_list = List.objects.all().annotate(project_title=F('project__title')).values('id', 'list', 'project_title','project_id')
+    # task_data_annotated = List.objects.all().annotate(project_title=F('project__title')).values('id', 'list', 'project_title','project_id')
+    # list_subquery = List.objects.filter(pk=OuterRef('task_list_id')).values('list')[:1]
+    # list_task = task_data_annotated.annotate(task_list_name=Subquery(list_subquery)).all()
+    # list_subtask = Subtask.objects.annotate(task_name=F('parent_task__title')).values('id','title', 'description', 'status', 'due_date', 'parent_task_id','task_name')  
+    
+
+
+def getprojectdata(request):
+    # import pdb;pdb.set_trace();
+    list_project = Project.objects.all().values('id','title','description','startdate','enddate','status')
+    project_list = list(list_project.values())
+    return JsonResponse({'project': project_list})
+
+
+def getlistdata(request):
+    # import pdb;pdb.set_trace();
+    list_list = List.objects.all().annotate(project_title=F('project__title')).values('id', 'list', 'project_title','project_id')
+    list_data = list(list_list.values())
+    return JsonResponse({'list_data': list_data})
+
+
+def gettaskdata(request):
+    # import pdb;pdb.set_trace();    
+    task_data_annotated = Task.objects.annotate(project_title=F('project__title')).values('id', 'title', 'description', 'due_date', 'status', 'project_title', 'project__id', 'task_list')
+    list_subquery = List.objects.filter(pk=OuterRef('task_list_id')).values('list')[:1]
+    combined_task_data = task_data_annotated.annotate(task_list_name=Subquery(list_subquery)).all()
+    list_task = list(combined_task_data.values())
+    return JsonResponse({'task': list_task})
+
+
+def getsubtaskdata(request):
+    # import pdb;pdb.set_trace();
+    subtask_data = Subtask.objects.annotate(task_name=F('parent_task__title')).values('id','title', 'description', 'status', 'due_date', 'parent_task_id','task_name')
+    list_subtask = list(subtask_data.values())
+    return JsonResponse({'subtask': list_subtask})
+
+
+    # return JsonResponse({'project': list_project ,'list': list_list ,'task': list_task ,'subtask': list_subtask })

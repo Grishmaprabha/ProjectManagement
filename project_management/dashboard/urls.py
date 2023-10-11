@@ -27,6 +27,12 @@ urlpatterns = [
     path('updateprofile/', views.update_profile, name='updateprofile'),
     
     path('activitylog/', views.activitylog, name='activitylog'),
+    path('get_prj_data/', views.getprojectdata, name='get_prj_data'),
+    
+    path('get_list_data/', views.getlistdata, name='get_list_data'),
+    path('get_task_data/', views.gettaskdata, name='get_task_data'),
+    path('get_subtask_data/', views.getsubtaskdata, name='get_subtask_data'),
+    
     # path('schedule_email_reminder/', views.schedule_email_reminder, name='schedule_email_reminder'),
     
     

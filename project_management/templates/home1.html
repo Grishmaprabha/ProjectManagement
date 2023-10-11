@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
+
+<head>
+    <title>List management</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  </head>
+</head>
+<body>
+    <div>
+
+    </div>
+    <header>
+        
+        <p style="text-align: end; text-transform:uppercase" >Username : {{dataReceived.username}}</p>
+        {% if dataReceived.role == 'mngr' %}
+            <p style="text-align: end;">ROLE : MANAGER</p>
+        {% else %}
+            <p style="text-align: end;">ROLE : USER</p>
+        {% endif %}
+        <p style="text-align: end;" data-toggle="modal" data-target="#myProfileModal"><a class="btn btn-primary">Profile</a></p>
+        <p style="text-align: end;"><a href="{% url 'logout' %}" class="btn btn-primary">Logout</a></p>
+        <p style="text-align: end;"><a href="{% url 'dashboard:activitylog' %}" class="btn btn-primary">Activity Log</a></p>
+        
+        
+    </header>
+    <!-- <p style="text-align: end;" type="button" class="btn" data-toggle="modal" data-target="#myProfileModal">Logout</p> -->
+    <!-- <button style="text-align: end;" type="button" class="btn" data-toggle="modal" data-target="#myProfileModal">Profile</button> -->
+        
+
+    <div>
+        {% if dataReceived.role == 'mngr' %}
+            <button type="button" class="btn" data-toggle="modal" data-target="#myModal">Add Project</button>
+        {% endif %}
+        <button type="button" class="btn" data-toggle="modal" data-target="#myListModal">Add List</button>
+        <button type="button" class="btn" data-toggle="modal" data-target="#myTaskModal">Add Task</button>
+        <button type="button" class="btn" data-toggle="modal" data-target="#mySubModal">Add Subtask</button>
+                    
+    </div>
+
+<h2>Task List</h2>
+
+<form method="get">
+    <label for="sort_by">Sort by:</label>
+    <select name="sort_by" id="sort_by">
+        <option value="">-- None --</option>
+        <option value="due_date">Due Date</option>
+        <option value="alphabetical">Alphabetical</option>
+    </select>
+
+    <label for="status">Filter by Status:</label>
+    <select name="status" id="status">
+        <option value="">-- All --</option>
+        <option value="pending">Pending</option>
+        <option value="inprogress">In Progress</option>
+        <option value="completed">Completed</option>
+    </select>
+
+    <label for="keyword">Search Keyword:</label>
+    <input type="text" name="keyword" id="keyword" placeholder="Search by title">
+
+    <button type="submit" id="apply_filter">Apply</button>
+    <button type="button" id="clear-filter">Clear Filter</button>
+</form>
+
+<table id="id_prj_task">
+    <thead>
+        <tr>
+            <th>Project</th>
+            <th>List</th>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Due date</th>
+            <th>Staus</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for data in task_data %}
+        {% for list in projects %}
+            {% if data.project_title == list.title %}
+            <tr>
+                <td>{{ data.project_title }}</td>
+                <td>{{ data.task_list_name }}</td>
+                <td>{{ data.title}}</td>
+                <td>{{ data.description}}</td>
+                <td>{{ data.due_date|date:"d/m/Y"}}</td>
+                <td>{{ data.status}}</td>
+                <td>
+                    <input type="submit" value="Edit" class="btn" id="edit_taskdata" data-action="home_edit" data-id="{{data.id}}" data-prjtitle="{{data.project__id}}" data-listname="{{data.task_list}}" data-title="{{data.title}}" data-description="{{data.description}}" data-duedate="{{data.due_date|date:'Y-m-d'}}"  data-status="{{data.status}}" >
+                    <input type="submit" value="Delete" class="btn" id="delete_taskdata" data-action="delete" data-id="{{data.id}}">
+                    <!-- <input type="submit" value="Add Subtask" class="btn" id="add_subtask" data-action="home_addsub" data-id="{{data.id}}"> -->
+                    <!--  -->
+                </td>
+            </tr>
+
+            {% endif %}
+            {% endfor %}
+        {% empty %}
+            <tr>
+                <td colspan="7" style="text-align: center;">No data found.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+</body>
+{% include 'addproject.html' %}
+{% include 'addlist.html' %}
+{% include 'addtask.html' %}
+{% include 'subtask.html' %}
+{% include 'profile.html' %}
+</html>
+
+<script>
+    
+
+
+    $('#apply-filter').on('click', function () {
+        var formData = $('#filter-form').serialize();
+        var url = '/home/?' + formData;
+        window.location.href = url;
+    });
+
+    $('#clear-filter').on('click', function () {
+        window.location.href = '/home/';
+    });
+
+</script>
+
+
+

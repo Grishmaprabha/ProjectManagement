@@ -1,142 +1,472 @@
+{% load static %}
+
 <!DOCTYPE html>
-<html>
-<head>
-<style>
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-td, th {
-  border: 1px solid #dddddd;
-  text-align: left;
-  padding: 8px;
-}
-
-tr:nth-child(even) {
-  background-color: #dddddd;
-}
-</style>
+<html lang="en">
 
 <head>
-    <title>List management</title>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  
-  </head>
+    <title>List management</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Favicon -->
+    <link href="./img/favicon.ico" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="../static/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="../static/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+
+    <!-- Customized Bootstrap Stylesheet -->
+    
+    <link href="../static/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="../static/css/style.css" rel="stylesheet">
 </head>
+
 <body>
-    <div>
+    <div class="container-fluid position-relative bg-white d-flex p-0">
+        <!-- Spinner Start -->
+        <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+        <!-- Spinner End -->
 
-    </div>
-    <header>
-        
-        <p style="text-align: end; text-transform:uppercase" >Username : {{dataReceived.username}}</p>
-        {% if dataReceived.role == 'mngr' %}
-            <p style="text-align: end;">ROLE : MANAGER</p>
-        {% else %}
-            <p style="text-align: end;">ROLE : USER</p>
-        {% endif %}
-        <p style="text-align: end;" data-toggle="modal" data-target="#myProfileModal"><a class="btn btn-primary">Profile</a></p>
-        <p style="text-align: end;"><a href="{% url 'logout' %}" class="btn btn-primary">Logout</a></p>
-        <p style="text-align: end;"><a href="{% url 'dashboard:activitylog' %}" class="btn btn-primary">Activity Log</a></p>
-        
-        
-    </header>
-    <!-- <p style="text-align: end;" type="button" class="btn" data-toggle="modal" data-target="#myProfileModal">Logout</p> -->
-    <!-- <button style="text-align: end;" type="button" class="btn" data-toggle="modal" data-target="#myProfileModal">Profile</button> -->
-        
 
-    <div>
-        {% if dataReceived.role == 'mngr' %}
-            <button type="button" class="btn" data-toggle="modal" data-target="#myModal">Add Project</button>
-        {% endif %}
-        <button type="button" class="btn" data-toggle="modal" data-target="#myListModal">Add List</button>
-        <button type="button" class="btn" data-toggle="modal" data-target="#myTaskModal">Add Task</button>
-        <button type="button" class="btn" data-toggle="modal" data-target="#mySubModal">Add Subtask</button>
+        <!-- Sidebar Start -->
+        <div class="sidebar pe-4 pb-3">
+            <nav class="navbar bg-light navbar-light">
+                <!-- <a href="home.html" class="navbar-brand mx-4 mb-3">
+                    <h3 class="text-primary"><i class="fa fa-hashtag me-2"></i>DASHMIN</h3>
+                </a> -->
+                <div class="d-flex align-items-center ms-4 mb-4">
+                    <div class="position-relative">
+                        <img class="rounded-circle" src="../static/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                        <div class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1"></div>
+                    </div>
+                    <div class="ms-3">
+                        <h6 class="mb-0">{{dataReceived.username}}</h6>
+                        {% if dataReceived.role == 'mngr' %}
+                            <span>MANAGER</span>
+                        {% else %}
+                            <span>USER</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="navbar-nav w-100">
+                    <a class="nav-item nav-link active"><i class="fa fa-tachometer-alt me-2"></i>Dashboard</a>
+                   
+                    {% if dataReceived.role == 'mngr' %}
+                        <a data-toggle="modal" data-target="#myModal" class="nav-item nav-link" ><i class="fa fa-th me-2"></i>Add Project</a>
+                    {% endif %}
+                    <a data-toggle="modal" data-target="#myListModal" class="nav-item nav-link"><i class="fa fa-keyboard me-2"></i>Add List</a>
+                    <a data-toggle="modal" data-target="#myTaskModal" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Add Task</a>
+                    <a data-toggle="modal" data-target="#mySubModal" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Add Subtask</a>
                     
+                </div>
+            </nav>
+        </div>
+        <!-- Sidebar End -->
+
+
+        <!-- Content Start -->
+        <div class="content">
+            <!-- Navbar Start -->
+            <nav class="navbar navbar-expand bg-light navbar-light sticky-top px-4 py-0">
+                <a href="home.html" class="navbar-brand d-flex d-lg-none me-4">
+                    <h2 class="text-primary mb-0"><i class="fa fa-hashtag"></i></h2>
+                </a>
+                <a href="#" class="sidebar-toggler flex-shrink-0">
+                    <i class="fa fa-bars"></i>
+                </a>
+                <div class="navbar-nav align-items-center ms-auto">
+                    <div class="nav-item dropdown">
+                        <!-- <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="fa fa-envelope me-lg-2"></i>
+                            <span class="d-none d-lg-inline-flex">Message</span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
+                            <a href="#" class="dropdown-item">
+                                <div class="d-flex align-items-center">
+                                    <img class="rounded-circle" src="../static/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                    <div class="ms-2">
+                                        <h6 class="fw-normal mb-0">Jhon send you a message</h6>
+                                        <small>15 minutes ago</small>
+                                    </div>
+                                </div>
+                            </a>
+                            <hr class="dropdown-divider">
+                            <a href="#" class="dropdown-item">
+                                <div class="d-flex align-items-center">
+                                    <img class="rounded-circle" src="../static/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                    <div class="ms-2">
+                                        <h6 class="fw-normal mb-0">Jhon send you a message</h6>
+                                        <small>15 minutes ago</small>
+                                    </div>
+                                </div>
+                            </a>
+                            <hr class="dropdown-divider">
+                            <a href="#" class="dropdown-item">
+                                <div class="d-flex align-items-center">
+                                    <img class="rounded-circle" src="../static/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                    <div class="ms-2">
+                                        <h6 class="fw-normal mb-0">Jhon send you a message</h6>
+                                        <small>15 minutes ago</small>
+                                    </div>
+                                </div>
+                            </a>
+                            <hr class="dropdown-divider">
+                            <a href="#" class="dropdown-item text-center">See all message</a>
+                        </div> -->
+                    </div>
+                    
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <img class="rounded-circle me-lg-2" src="../static/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                            <span class="d-none d-lg-inline-flex">{{dataReceived.username}}</span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
+                            <a data-toggle="modal" data-target="#myProfileModal" class="dropdown-item">My Profile</a>
+                            <a href="{% url 'dashboard:activitylog' %}" class="dropdown-item">Activity Log</a>
+                            <a href="{% url 'logout' %}" class="dropdown-item">Log Out</a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            <!-- Navbar End -->
+
+
+
+            <!-- Sale & Revenue Start -->
+            <div class="container-fluid pt-4 px-4">
+                <div class="row g-4">
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                            <i class="fa fa-chart-line fa-3x text-primary"></i>
+                            <div class="ms-3">
+                                <p class="mb-2">Total Project</p>
+                                <h6 class="mb-0">{{prj_count}}</h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                            <i class="fa fa-chart-bar fa-3x text-primary"></i>
+                            <div class="ms-3">
+                                <p class="mb-2">Pending Task</p>
+                                <h6 class="mb-0">{{pending_tasks}}</h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                            <i class="fa fa-chart-area fa-3x text-primary"></i>
+                            <div class="ms-3">
+                                <p class="mb-2">Due Task</p>
+                                <h6 class="mb-0">{{due_task}}</h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                            <i class="fa fa-chart-pie fa-3x text-primary"></i>
+                            <div class="ms-3">
+                                <p class="mb-2">Total Revenue</p>
+                                <h6 class="mb-0">$1234</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Sale & Revenue End -->
+
+            <!-- Recent Sales Start -->
+            <div class="container-fluid pt-4 px-4">
+                
+                <div class="bg-light text-center rounded p-4">
+                        <form method="get">
+                            <label for="sort_by">Sort by:</label>
+                            <select name="sort_by" id="sort_by">
+                                <option value="">-- None --</option>
+                                <option value="due_date">Due Date</option>
+                                <option value="alphabetical">Alphabetical</option>
+                            </select>
+                        
+                            <label for="status">Filter by Status:</label>
+                            <select name="status" id="filter_status">
+                                <option value="">-- All --</option>
+                                <option value="pending">Pending</option>
+                                <option value="inprogress">In Progress</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        
+                            <label for="keyword">Search Keyword:</label>
+                            <input type="text" name="keyword" id="keyword" placeholder="Search by title">
+                        <div style="text-align: end;">
+                            <button type="submit" class="btn btn-sm btn-primary" id="apply_filter">Apply</button>
+                            <button type="button" class="btn btn-sm btn-primary" id="clear-filter">Clear Filter</button>
+                        </div>
+                            </form>
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <h6 class="mb-0">Task List</h6>
+                        <!-- <a href="">Show All</a> -->
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table text-start align-middle table-bordered table-hover mb-0">
+                            <thead>
+                                <tr class="text-dark">
+                                    <th scope="col">Project</th>
+                                    <th scope="col">List</th>
+                                    <th scope="col">Title</th>
+                                    <th scope="col">Description</th>
+                                    <th scope="col">Due date</th>
+                                    <th scope="col">Status</th>
+                                    <!-- <th scope="col">Action</th> -->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                    {% for data in task_data %}
+                                    {% for list in projects %}
+                                        {% if data.project_title == list.title %}
+                                        <tr>
+                                            <td>{{ data.project_title }}</td>
+                                            <td>{{ data.task_list_name }}</td>
+                                            <td>{{ data.title}}</td>
+                                            <td>{{ data.description}}</td>
+                                            <td>{{ data.due_date|date:"d/m/Y"}}</td>
+                                            <td>{{ data.status}}</td>
+                                            <!-- <td>
+                                                <input type="submit" value="Edit" class="btn btn-sm btn-primary" id="edit_taskdata" data-action="home_edit" data-id="{{data.id}}" data-prjtitle="{{data.project__id}}" data-listname="{{data.task_list}}" data-title="{{data.title}}" data-description="{{data.description}}" data-duedate="{{data.due_date|date:'Y-m-d'}}"  data-status="{{data.status}}" >
+                                                <input type="submit" value="Delete" class="btn btn-sm btn-primary" id="delete_taskdata" data-action="delete" data-id="{{data.id}}">
+                    
+                                            </td> -->
+                                        </tr>
+
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="7" style="text-align: center;">No data found.</td>
+                                        </tr>
+                                    {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- Recent Sales End -->
+
+            <!-- Sales Chart Start -->
+            <div class="container-fluid pt-4 px-4">
+                <div class="row g-4">
+                    <div class="col-sm-12 col-xl-6">
+                        <div class="bg-light text-center rounded p-4">
+                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                <h6 class="mb-0">Worldwide Sales</h6>
+                                <a href="">Show All</a>
+                            </div>
+                            <canvas id="worldwide-sales"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-xl-6">
+                        <div class="bg-light text-center rounded p-4">
+                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                <h6 class="mb-0">Salse & Revenue</h6>
+                                <a href="">Show All</a>
+                            </div>
+                            <canvas id="salse-revenue"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Sales Chart End -->
+
+
+            
+
+
+            <!-- Widgets Start -->
+            <div class="container-fluid pt-4 px-4">
+                <div class="row g-4">
+                    <!-- <div class="col-sm-12 col-md-6 col-xl-4">
+                        <div class="h-100 bg-light rounded p-4">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <h6 class="mb-0">Messages</h6>
+                                <a href="">Show All</a>
+                            </div>
+                            <div class="d-flex align-items-center border-bottom py-3">
+                                <img class="rounded-circle flex-shrink-0" src="../static/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                <div class="w-100 ms-3">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-0">Jhon Doe</h6>
+                                        <small>15 minutes ago</small>
+                                    </div>
+                                    <span>Short message goes here...</span>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center border-bottom py-3">
+                                <img class="rounded-circle flex-shrink-0" src="../static/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                <div class="w-100 ms-3">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-0">Jhon Doe</h6>
+                                        <small>15 minutes ago</small>
+                                    </div>
+                                    <span>Short message goes here...</span>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center border-bottom py-3">
+                                <img class="rounded-circle flex-shrink-0" src="../static/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                <div class="w-100 ms-3">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-0">Jhon Doe</h6>
+                                        <small>15 minutes ago</small>
+                                    </div>
+                                    <span>Short message goes here...</span>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center pt-3">
+                                <img class="rounded-circle flex-shrink-0" src="../static/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                <div class="w-100 ms-3">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-0">Jhon Doe</h6>
+                                        <small>15 minutes ago</small>
+                                    </div>
+                                    <span>Short message goes here...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div> -->
+                    <!-- <div class="col-sm-12 col-md-6 col-xl-4">
+                        <div class="h-100 bg-light rounded p-4">
+                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                <h6 class="mb-0">Calender</h6>
+                                <a href="">Show All</a>
+                            </div>
+                            <div id="calender"></div>
+                        </div>
+                    </div> -->
+                    <!-- <div class="col-sm-12 col-md-6 col-xl-4">
+                        <div class="h-100 bg-light rounded p-4">
+                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                <h6 class="mb-0">To Do List</h6>
+                                <a href="">Show All</a>
+                            </div>
+                            <div class="d-flex mb-2">
+                                <input class="form-control bg-transparent" type="text" placeholder="Enter task">
+                                <button type="button" class="btn btn-primary ms-2">Add</button>
+                            </div>
+                            <div class="d-flex align-items-center border-bottom py-2">
+                                <input class="form-check-input m-0" type="checkbox">
+                                <div class="w-100 ms-3">
+                                    <div class="d-flex w-100 align-items-center justify-content-between">
+                                        <span>Short task goes here...</span>
+                                        <button class="btn btn-sm"><i class="fa fa-times"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center border-bottom py-2">
+                                <input class="form-check-input m-0" type="checkbox">
+                                <div class="w-100 ms-3">
+                                    <div class="d-flex w-100 align-items-center justify-content-between">
+                                        <span>Short task goes here...</span>
+                                        <button class="btn btn-sm"><i class="fa fa-times"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center border-bottom py-2">
+                                <input class="form-check-input m-0" type="checkbox" checked>
+                                <div class="w-100 ms-3">
+                                    <div class="d-flex w-100 align-items-center justify-content-between">
+                                        <span><del>Short task goes here...</del></span>
+                                        <button class="btn btn-sm text-primary"><i class="fa fa-times"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center border-bottom py-2">
+                                <input class="form-check-input m-0" type="checkbox">
+                                <div class="w-100 ms-3">
+                                    <div class="d-flex w-100 align-items-center justify-content-between">
+                                        <span>Short task goes here...</span>
+                                        <button class="btn btn-sm"><i class="fa fa-times"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center pt-2">
+                                <input class="form-check-input m-0" type="checkbox">
+                                <div class="w-100 ms-3">
+                                    <div class="d-flex w-100 align-items-center justify-content-between">
+                                        <span>Short task goes here...</span>
+                                        <button class="btn btn-sm"><i class="fa fa-times"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div> -->
+                </div>
+            </div>
+            <!-- Widgets End -->
+
+
+            <!-- Footer Start -->
+            <div class="container-fluid pt-4 px-4">
+                <div class="bg-light rounded-top p-4">
+                    <div class="row">
+                        <div class="col-12 col-sm-6 text-center text-sm-start">
+                            <!-- &copy; <a href="#">Your Site Name</a>, All Right Reserved.  -->
+                        </div>
+                        <div class="col-12 col-sm-6 text-center text-sm-end">
+                            <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
+                            <!-- Designed By <a href="https://htmlcodex.com">HTML Codex</a> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Footer End -->
+        </div>
+        <!-- Content End -->
+
+
+        <!-- Back to Top -->
+        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
     </div>
 
-<h2>Task List</h2>
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../static/lib/chart/chart.min.js"></script>
+    <script src="../static/lib/easing/easing.min.js"></script>
+    <script src="../static/lib/waypoints/waypoints.min.js"></script>
+    <script src="../static/lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="../static/lib/tempusdominus/js/moment.min.js"></script>
+    <script src="../static/lib/tempusdominus/js/moment-timezone.min.js"></script>
+    <script src="../static/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
 
-<form method="get">
-    <label for="sort_by">Sort by:</label>
-    <select name="sort_by" id="sort_by">
-        <option value="">-- None --</option>
-        <option value="due_date">Due Date</option>
-        <option value="alphabetical">Alphabetical</option>
-    </select>
 
-    <label for="status">Filter by Status:</label>
-    <select name="status" id="status">
-        <option value="">-- All --</option>
-        <option value="pending">Pending</option>
-        <option value="inprogress">In Progress</option>
-        <option value="completed">Completed</option>
-    </select>
-
-    <label for="keyword">Search Keyword:</label>
-    <input type="text" name="keyword" id="keyword" placeholder="Search by title">
-
-    <button type="submit" id="apply_filter">Apply</button>
-    <button type="button" id="clear-filter">Clear Filter</button>
-</form>
-
-<table id="id_prj_task">
-    <thead>
-        <tr>
-            <th>Project</th>
-            <th>List</th>
-            <th>Title</th>
-            <th>Description</th>
-            <th>Due date</th>
-            <th>Staus</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for data in task_data %}
-        {% for list in projects %}
-            {% if data.project_title == list.title %}
-            <tr>
-                <td>{{ data.project_title }}</td>
-                <td>{{ data.task_list_name }}</td>
-                <td>{{ data.title}}</td>
-                <td>{{ data.description}}</td>
-                <td>{{ data.due_date|date:"d/m/Y"}}</td>
-                <td>{{ data.status}}</td>
-                <td>
-                    <input type="submit" value="Edit" class="btn" id="edit_taskdata" data-action="home_edit" data-id="{{data.id}}" data-prjtitle="{{data.project__id}}" data-listname="{{data.task_list}}" data-title="{{data.title}}" data-description="{{data.description}}" data-duedate="{{data.due_date|date:'Y-m-d'}}"  data-status="{{data.status}}" >
-                    <input type="submit" value="Delete" class="btn" id="delete_taskdata" data-action="delete" data-id="{{data.id}}">
-                    <!-- <input type="submit" value="Add Subtask" class="btn" id="add_subtask" data-action="home_addsub" data-id="{{data.id}}"> -->
-                    <!--  -->
-                </td>
-            </tr>
-
-            {% endif %}
-            {% endfor %}
-        {% empty %}
-            <tr>
-                <td colspan="7" style="text-align: center;">No data found.</td>
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <!-- Template Javascript -->
+    <script src="../static/js/main.js"></script>
 
 </body>
+
 {% include 'addproject.html' %}
 {% include 'addlist.html' %}
 {% include 'addtask.html' %}
 {% include 'subtask.html' %}
 {% include 'profile.html' %}
+
 </html>
+
 
 <script>
     
@@ -148,11 +478,12 @@ tr:nth-child(even) {
         window.location.href = url;
     });
 
+    $('#edit_taskdata').on('click',function(){
+        $('#myTaskModal').modal('show')
+    })
+
     $('#clear-filter').on('click', function () {
         window.location.href = '/home/';
     });
 
 </script>
-
-
-
