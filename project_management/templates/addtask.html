@@ -157,7 +157,7 @@
 
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-sm btn-primary btn-default" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-sm btn-primary btn-default" id="task_modal_close" data-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
@@ -184,6 +184,10 @@
 </html>
 
 <script>
+
+    $('#task_modal_close').on('click',function(e){
+        location.reload();
+    })
 
     $('#taskprojects').on('change', function() {
         var prj_id = $('#taskprojects').val();
@@ -299,7 +303,7 @@
 
         var id = $(this).data('id')
         var project = $(this).data('prjtitle')
-        var task = $(this).data('listname')
+        var list = $(this).data('listname')
         var title = $(this).data('title')        
         var description = $(this).data('description')
         var duedate = $(this).data('duedate')
@@ -332,9 +336,9 @@
                     var option = '<option value="' + data.task.id + '">' + data.task.list + '</option>';
                         $('#tasklist').append(option);
 
-                        // $('#taskprojects').trigger('change')
+                        
 
-                    $('#tasklist').val(data.id)
+                    // $('#tasklist').val(list)
                     $('#tasktitle').val(title)
                     $('#taskdescription').val(description)
                     $('#taskduedate').val(duedate)

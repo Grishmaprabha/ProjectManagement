@@ -125,7 +125,7 @@
 
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-sm btn-primary btn-default" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-sm btn-primary btn-default" id="subtask_modal_close" data-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
@@ -153,6 +153,10 @@
 </html>
 
 <script>
+
+    $('#subtask_modal_close').on('click',function(e){
+        location.reload();
+    })
 
 
     $('#subaddtask').on('click',function(e){

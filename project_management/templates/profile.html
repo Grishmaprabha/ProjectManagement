@@ -46,8 +46,20 @@
                       </div>
 
                       <div class="form-group first">
-                        <p for="userrole">Role :</p>                  
-                          <input type="text" name="userrole" id="userrole" value="{{profile.0.role}}" style="width: 200px;" readonly>
+
+                        <label for="userrole">Role :</label>
+                            <select name="userrole" id="userrole">
+                                {% if profile.0.role == 'mngr' %}
+                                    <option value="mngr" selected>Manager</option>
+                                    <option value="user">User</option>
+                                {% else %}
+                                    <option value="mngr">Manager</option>
+                                    <option value="user" selected>User</option>
+                                {% endif %}
+                            </select>
+                            
+                        <!-- <p for="userrole">Role :</p>                  
+                          <input type="text" name="userrole" id="userrole" value="{{profile.0.role}}" style="width: 200px;" readonly> -->
                       </div>
                     <div id="id_reset_pwd" style="display: none;">
                         <div class="form-group first">
@@ -88,6 +100,8 @@
 
 <script>
 
+    $('#userrole').prop('disabled', true);
+
     $('#profile_close').on('click',function(e){
         e.preventDefault()
         $('#updatedata').css("display", "none");
@@ -109,6 +123,7 @@
         $('#username').prop('readonly', false);
         $('#useremail').prop('readonly', false);
         $('#userrole').prop('readonly', false);
+        $('#userrole').prop('disabled', false);
         $('#updatedata').css("display", "");
         $('#updateprofile').css("display", "none");
         $('#resetpwd').css("display", "none");

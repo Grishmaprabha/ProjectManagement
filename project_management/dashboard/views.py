@@ -18,7 +18,7 @@ from django.utils import timezone
 from celery import shared_task
 import smtplib
 from email.mime.text import MIMEText
-from django.db.models import F,Subquery, OuterRef
+from django.db.models import F,Subquery, OuterRef, Count
 
 
 from django.core.mail import send_mail
@@ -646,5 +646,38 @@ def getsubtaskdata(request):
     list_subtask = list(subtask_data.values())
     return JsonResponse({'subtask': list_subtask})
 
+def getchartdata(request):
+    # import pdb;pdb.set_trace();
+    user_data = request.session.get('user_data')
+    user_id = CustomUser.objects.filter(username=user_data['username']).values('id')
+    pending_list = []
+    progress_list = []
+    completed_list = []
+    
+    labels = Project.objects.filter(user=user_id[0]['id']).values('id')
+    project_label = list(Project.objects.filter(user=user_id[0]['id']).values_list('title', flat=True))
+    
+    
+    for project in labels:
+        pending_data = Task.objects.filter(status='pending', project__user=user_id[0]['id'],project=project['id']).count()
+        pending_list.append(pending_data)
+        
+    for project in labels:
+        progress_data = Task.objects.filter(status='inprogress', project__user=user_id[0]['id'],project=project['id']).count()
+        progress_list.append(progress_data)
+    
+    for project in labels:
+        completed_data = Task.objects.filter(status='completed', project__user=user_id[0]['id'],project=project['id']).count()
+        completed_list.append(completed_data)
+    
+    
+    data = {
+        "labels": project_label,
+        "pendingData": pending_list,
+        "inProgressData": progress_list,
+        "completeData": completed_list
+    }
 
-    # return JsonResponse({'project': list_project ,'list': list_list ,'task': list_task ,'subtask': list_subtask })
+    return JsonResponse(data)
+    
+

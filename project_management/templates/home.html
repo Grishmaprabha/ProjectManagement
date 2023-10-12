@@ -69,11 +69,11 @@
                     <a class="nav-item nav-link active"><i class="fa fa-tachometer-alt me-2"></i>Dashboard</a>
                    
                     {% if dataReceived.role == 'mngr' %}
-                        <a data-toggle="modal" data-target="#myModal" class="nav-item nav-link" ><i class="fa fa-th me-2"></i>Add Project</a>
+                        <a data-toggle="modal" data-target="#myModal" class="nav-item nav-link" ><i class="fa fa-plus me-2"></i>Add Project</a>
                     {% endif %}
-                    <a data-toggle="modal" data-target="#myListModal" class="nav-item nav-link"><i class="fa fa-keyboard me-2"></i>Add List</a>
-                    <a data-toggle="modal" data-target="#myTaskModal" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Add Task</a>
-                    <a data-toggle="modal" data-target="#mySubModal" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Add Subtask</a>
+                    <a data-toggle="modal" data-target="#myListModal" class="nav-item nav-link"><i class="fa fa-plus me-2"></i>Add List</a>
+                    <a data-toggle="modal" data-target="#myTaskModal" class="nav-item nav-link"><i class="fa fa-plus me-2"></i>Add Task</a>
+                    <a data-toggle="modal" data-target="#mySubModal" class="nav-item nav-link"><i class="fa fa-plus me-2"></i>Add Subtask</a>
                     
                 </div>
             </nav>
@@ -152,34 +152,35 @@
             <!-- Sale & Revenue Start -->
             <div class="container-fluid pt-4 px-4">
                 <div class="row g-4">
-                    <div class="col-sm-6 col-xl-3">
+                    <div class="col-sm-4 col-xl-3">
                         <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
-                            <i class="fa fa-chart-line fa-3x text-primary"></i>
+                            <i class="fa fa-tasks fa-3x text-primary"></i>
+                            
                             <div class="ms-3">
                                 <p class="mb-2">Total Project</p>
                                 <h6 class="mb-0">{{prj_count}}</h6>
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-6 col-xl-3">
+                    <div class="col-sm-4 col-xl-3">
                         <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
-                            <i class="fa fa-chart-bar fa-3x text-primary"></i>
+                            <i class="fa fa-clock fa-3x text-primary"></i>
                             <div class="ms-3">
                                 <p class="mb-2">Pending Task</p>
                                 <h6 class="mb-0">{{pending_tasks}}</h6>
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-6 col-xl-3">
+                    <div class="col-sm-4 col-xl-3">
                         <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
-                            <i class="fa fa-chart-area fa-3x text-primary"></i>
+                            <i class="fa fa-calendar-alt fa-3x text-primary"></i>
                             <div class="ms-3">
                                 <p class="mb-2">Due Task</p>
                                 <h6 class="mb-0">{{due_task}}</h6>
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-6 col-xl-3">
+                    <!-- <div class="col-sm-6 col-xl-3">
                         <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
                             <i class="fa fa-chart-pie fa-3x text-primary"></i>
                             <div class="ms-3">
@@ -187,7 +188,7 @@
                                 <h6 class="mb-0">$1234</h6>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
             <!-- Sale & Revenue End -->
@@ -274,19 +275,10 @@
                     <div class="col-sm-12 col-xl-6">
                         <div class="bg-light text-center rounded p-4">
                             <div class="d-flex align-items-center justify-content-between mb-4">
-                                <h6 class="mb-0">Worldwide Sales</h6>
-                                <a href="">Show All</a>
+                                <h6 class="mb-0">Project Status</h6>
+                                <!-- <a href="">Show All</a> -->
                             </div>
-                            <canvas id="worldwide-sales"></canvas>
-                        </div>
-                    </div>
-                    <div class="col-sm-12 col-xl-6">
-                        <div class="bg-light text-center rounded p-4">
-                            <div class="d-flex align-items-center justify-content-between mb-4">
-                                <h6 class="mb-0">Salse & Revenue</h6>
-                                <a href="">Show All</a>
-                            </div>
-                            <canvas id="salse-revenue"></canvas>
+                            <canvas id="project_status"></canvas>
                         </div>
                     </div>
                 </div>
@@ -485,5 +477,51 @@
     $('#clear-filter').on('click', function () {
         window.location.href = '/home/';
     });
+
+
+    var ctx1 = $("#project_status").get(0).getContext("2d");
+    var myChart1 = new Chart(ctx1, {
+        type: "bar",
+        data: {
+            labels: ["2016", "2017", "2018", "2019", "2020", "2021", "2022"],
+            datasets: [{
+                    label: "Pending",
+                    data: [15, 30, 55, 65, 60, 80, 95],
+                    backgroundColor: "rgba(0, 156, 255, .7)"
+                },
+                {
+                    label: "In Progress",
+                    data: [8, 35, 40, 60, 70, 55, 75],
+                    backgroundColor: "rgba(0, 156, 255, .5)"
+                },
+                {
+                    label: "Completed",
+                    data: [12, 25, 45, 55, 65, 70, 60],
+                    backgroundColor: "rgba(0, 156, 255, .3)"
+                }
+            ]
+            },
+        options: {
+            responsive: true
+        }
+    });
+
+    $.ajax({
+            url: '/get_chart_data/', 
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                myChart1.data.labels = data.labels;
+                myChart1.data.datasets[0].data = data.pendingData;
+                myChart1.data.datasets[1].data = data.inProgressData;
+                myChart1.data.datasets[2].data = data.completeData;
+
+                myChart1.update();
+            },
+            error: function (error) {
+                console.error('Error fetching data: ', error);
+            }
+        });
+
 
 </script>

@@ -166,7 +166,7 @@
 
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-sm btn-primary btn-default" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-sm btn-primary btn-default" id="prj_modal_close" data-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
@@ -196,7 +196,11 @@
 <script>
     $(document).ready(function() {
 
-    
+        $('#prj_modal_close').on('click',function(e){
+            location.reload();
+        })
+
+        
 
     
     $('#addproject').on('click',function(e){
