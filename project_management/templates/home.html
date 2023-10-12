@@ -5,7 +5,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>List management</title>
+    <title>Project management</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
     <meta content="" name="description">
@@ -152,16 +152,25 @@
             <!-- Sale & Revenue Start -->
             <div class="container-fluid pt-4 px-4">
                 <div class="row g-4">
-                    <div class="col-sm-4 col-xl-3">
+                    <div class="col-sm-6 col-xl-3">
                         <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
-                            <i class="fa fa-tasks fa-3x text-primary"></i>                            
+                            <i class="fa fa-folder fa-3x text-primary"></i>                            
                             <div class="ms-3">
                                 <p class="mb-2">Total Project</p>
                                 <h6 class="mb-0">{{prj_count}}</h6>
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-4 col-xl-3">
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                            <i class="fa fa-tasks fa-3x text-primary"></i>
+                            <div class="ms-3">
+                                <p class="mb-2">Total Task</p>
+                                <h6 class="mb-0">{{total_task}}</h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xl-3">
                         <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
                             <i class="fa fa-clock fa-3x text-primary"></i>
                             <div class="ms-3">
@@ -170,7 +179,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-4 col-xl-3">
+                    <div class="col-sm-6 col-xl-3">
                         <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
                             <i class="fa fa-calendar-alt fa-3x text-primary"></i>
                             <div class="ms-3">
@@ -179,15 +188,6 @@
                             </div>
                         </div>
                     </div>
-                    <!-- <div class="col-sm-6 col-xl-3">
-                        <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
-                            <i class="fa fa-chart-pie fa-3x text-primary"></i>
-                            <div class="ms-3">
-                                <p class="mb-2">Total Revenue</p>
-                                <h6 class="mb-0">$1234</h6>
-                            </div>
-                        </div>
-                    </div> -->
                 </div>
             </div>
             <!-- Sale & Revenue End -->
@@ -229,12 +229,12 @@
                         <table class="table text-start align-middle table-bordered table-hover mb-0">
                             <thead>
                                 <tr class="text-dark">
-                                    <th scope="col">Project</th>
-                                    <th scope="col">List</th>
-                                    <th scope="col">Title</th>
-                                    <th scope="col">Description</th>
-                                    <th scope="col">Due date</th>
-                                    <th scope="col">Status</th>
+                                    <th scope="col" style="top: 0;position: sticky;background: #f3f6f9;color:black;">Project</th>
+                                    <th scope="col" style="top: 0;position: sticky;background: #f3f6f9;color:black;">List</th>
+                                    <th scope="col" style="top: 0;position: sticky;background: #f3f6f9;color:black;">Title</th>
+                                    <th scope="col" style="top: 0;position: sticky;background: #f3f6f9;color:black;">Description</th>
+                                    <th scope="col" style="top: 0;position: sticky;background: #f3f6f9;color:black;">Due date</th>
+                                    <th scope="col" style="top: 0;position: sticky;background: #f3f6f9;color:black;">Status</th>
                                     <!-- <th scope="col">Action</th> -->
                                 </tr>
                             </thead>
@@ -248,7 +248,15 @@
                                             <td>{{ data.title}}</td>
                                             <td>{{ data.description}}</td>
                                             <td>{{ data.due_date|date:"d/m/Y"}}</td>
-                                            <td>{{ data.status}}</td>
+                                            {% if data.status == 'pending' %}
+                                                <td style="color: red;">{{ data.status}}</td>
+                                            {% elif data.status ==  'inprogress' %}
+                                                <td style="color: orange;">{{ data.status}}</td>
+                                            {% else %}
+                                                <td style="color: green;">{{ data.status}}</td>
+                                            {% endif %}
+
+                                            
                                             <!-- <td>
                                                 <input type="submit" value="Edit" class="btn btn-sm btn-primary" id="edit_taskdata" data-action="home_edit" data-id="{{data.id}}" data-prjtitle="{{data.project__id}}" data-listname="{{data.task_list}}" data-title="{{data.title}}" data-description="{{data.description}}" data-duedate="{{data.due_date|date:'Y-m-d'}}"  data-status="{{data.status}}" >
                                                 <input type="submit" value="Delete" class="btn btn-sm btn-primary" id="delete_taskdata" data-action="delete" data-id="{{data.id}}">
@@ -269,29 +277,36 @@
                     </div>
                 </div>
             </div>
-            <!-- Recent Sales End -->
 
-            <!-- Sales Chart Start -->
             <div class="container-fluid pt-4 px-4">
                 <div class="row g-4">
                     <div class="col-sm-12 col-xl-6">
                         <div class="bg-light text-center rounded p-4">
                             <div class="d-flex align-items-center justify-content-between mb-4">
                                 <h6 class="mb-0">Project Status</h6>
-                                <!-- <a href="">Show All</a> -->
                             </div>
                             <canvas id="project_status"></canvas>
                         </div>
                     </div>
                 </div>
+
+                <br><br>
+
+                <div class="row g-4">
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="bg-light text-center rounded p-4">
+                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                <h6 class="mb-0">Due status</h6>
+                            </div>
+                            <canvas id="due_notdue_status"></canvas>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-            <!-- Sales Chart End -->
 
 
-            
 
-
-            <!-- Widgets Start -->
             <div class="container-fluid pt-4 px-4">
                 <div class="row g-4">
                     <!-- <div class="col-sm-12 col-md-6 col-xl-4">
@@ -485,20 +500,20 @@
     var myChart1 = new Chart(ctx1, {
         type: "bar",
         data: {
-            labels: ["2016", "2017", "2018", "2019", "2020", "2021", "2022"],
+            labels: [],
             datasets: [{
                     label: "Pending",
-                    data: [15, 30, 55, 65, 60, 80, 95],
+                    data: [],
                     backgroundColor: "rgba(0, 156, 255, .7)"
                 },
                 {
                     label: "In Progress",
-                    data: [8, 35, 40, 60, 70, 55, 75],
+                    data: [],
                     backgroundColor: "rgba(0, 156, 255, .5)"
                 },
                 {
                     label: "Completed",
-                    data: [12, 25, 45, 55, 65, 70, 60],
+                    data: [],
                     backgroundColor: "rgba(0, 156, 255, .3)"
                 }
             ]
@@ -526,15 +541,56 @@
         });
 
 
+    var ctx5 = $("#due_notdue_status").get(0).getContext("2d");
+    var myChart5;
+
+    function updateChart(dueCount, notDueCount) {
+        if (myChart5) {
+            myChart5.destroy(); 
+        }
+
+        myChart5 = new Chart(ctx5, {
+            type: "pie",
+            data: {
+                labels: ["Due", "Not due"],
+                datasets: [{
+                    backgroundColor: [
+                        "rgba(0, 156, 255, .7)",
+                        "rgba(0, 156, 255, .3)"
+                        // "rgb(220,53,69)",
+                        // "rgb(25,135,84)",
+                    ],
+                    data: [dueCount, notDueCount]
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+    }
+
+
+    function fetchDataAndRenderChart() {
+        $.ajax({
+            url: "/get_piechart_data/",
+            method: "GET",
+            dataType: "json",
+            success: function (data) {
+                updateChart(data.due_task, data.other_tasks); 
+            },
+            error: function (error) {
+                console.log("Error fetching data: " + error);
+            }
+        });
+    }
+
+    fetchDataAndRenderChart();
+
+
 
         
 
-        $(".mouse_hover").mouseenter(function(){
-            $(".hide").show();
-        });
-        $(".mouse_hover").mouseleave(function(){
-            $(".hide").hide();
-        });
+        
 
 
 </script>

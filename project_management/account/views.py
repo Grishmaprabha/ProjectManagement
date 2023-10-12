@@ -46,19 +46,23 @@ def home(request):
         
     # subtask = Subtask.objects.all().values('title','description','status','due_date','parent_task')
     subtask = Subtask.objects.annotate(task_name=F('parent_task__title')).order_by('-created_at').values('id','title', 'description', 'status', 'due_date', 'parent_task_id','task_name')   
+    user_subtasks = Subtask.objects.annotate(task_name=F('parent_task__title')).filter(parent_task__project__user=user_id[0]['id']).order_by('-created_at').values('id','title', 'description', 'status', 'due_date', 'parent_task_id','task_name')   
+
     
     total_project = Project.objects.filter(user=user_id[0]['id']).count()
     pending_tasks = Task.objects.filter(status='pending', project__user=user_id[0]['id']).count()
 
-
+    # import pdb;pdb.set_trace();
     today = date.today()
     three_days_later = today + timedelta(days=3)
 
     # Perform the query to get tasks with due dates within the next 3 days
-    due_task = Task.objects.filter(due_date__gte=today, due_date__lte=three_days_later).count()
+    due_task = Task.objects.filter(due_date__gte=today, due_date__lte=three_days_later,project__user=user_id[0]['id']).count()
+    
+    total_task = Task.objects.filter(project__user=user_id[0]['id']).count()
 
 
-    return render(request, 'home.html', {'dataReceived': data_received,'user_data':user_data,'list_data':list_data,'list':datalist_list,'projects':project_user,'task_data':combined_task_data,'subtask':subtask,'profile':user_profile,'prj_count':total_project,'pending_tasks':pending_tasks,'due_task':due_task})
+    return render(request, 'home.html', {'dataReceived': data_received,'user_data':user_data,'list_data':list_data,'list':datalist_list,'projects':project_user,'task_data':combined_task_data,'subtask':user_subtasks,'profile':user_profile,'prj_count':total_project,'pending_tasks':pending_tasks,'due_task':due_task,'total_task':total_task})
 
 
 def register(request):

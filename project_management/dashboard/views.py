@@ -11,17 +11,16 @@ from datetime import datetime, timedelta
 import ssl
 from django.conf import settings
 from celery import shared_task
-from datetime import datetime, timedelta
+from datetime import date,datetime, timedelta
 from django.core.mail import send_mail
 from django.utils import timezone
 # from project_management.settings import EMAIL_HOST_USER
 from celery import shared_task
 import smtplib
 from email.mime.text import MIMEText
-from django.db.models import F,Subquery, OuterRef, Count
+from django.db.models import F,Subquery, OuterRef, Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.mail import send_mail
-
 
 
 
@@ -675,6 +674,26 @@ def getchartdata(request):
         "pendingData": pending_list,
         "inProgressData": progress_list,
         "completeData": completed_list
+    }
+
+    return JsonResponse(data)
+
+def getpiechartdata(request):
+    # import pdb;pdb.set_trace();
+    user_data = request.session.get('user_data')
+    user_id = CustomUser.objects.filter(username=user_data['username']).values('id')
+    
+    today = date.today()
+    three_days_later = today + timedelta(days=3)
+
+    due_task = Task.objects.filter(due_date__gte=today, due_date__lte=three_days_later, project__user=user_id[0]['id']).count()
+
+    other_tasks = Task.objects.filter(Q(due_date__lt=today) | Q(due_date__gt=three_days_later), project__user=user_id[0]['id']).count()
+    
+    
+    data = {
+        "due_task": due_task,
+        "other_tasks": other_tasks
     }
 
     return JsonResponse(data)

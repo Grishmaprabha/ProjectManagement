@@ -117,13 +117,13 @@
         <table id="id_prj_task" class="table text-start align-middle table-bordered table-hover mb-0">
             <thead>
                 <tr class="text-dark">
-                    <th scope="col">Project</th>
-                    <th scope="col">List</th>
-                    <th scope="col">Title</th>
-                    <th scope="col">Description</th>
-                    <th scope="col">Due date</th>
-                    <th scope="col">Staus</th>
-                    <th scope="col">Action</th>
+                    <th scope="col" style="top: 0;position: sticky;background: #f3f6f9;color:black;">Project</th>
+                    <th scope="col" style="top: 0;position: sticky;background: #f3f6f9;color:black;">List</th>
+                    <th scope="col" style="top: 0;position: sticky;background: #f3f6f9;color:black;">Title</th>
+                    <th scope="col" style="top: 0;position: sticky;background: #f3f6f9;color:black;">Description</th>
+                    <th scope="col" style="top: 0;position: sticky;background: #f3f6f9;color:black;">Due date</th>
+                    <th scope="col" style="top: 0;position: sticky;background: #f3f6f9;color:black;">Staus</th>
+                    <th scope="col" style="top: 0;position: sticky;background: #f3f6f9;color:black;">Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -136,7 +136,13 @@
                         <td>{{ data.title}}</td>
                         <td>{{ data.description}}</td>
                         <td>{{ data.due_date|date:"d/m/Y"}}</td>
-                        <td>{{ data.status}}</td>
+                        {% if data.status == 'pending' %}
+                            <td style="color: red;">{{ data.status}}</td>
+                        {% elif data.status ==  'inprogress' %}
+                            <td style="color: orange;">{{ data.status}}</td>
+                        {% else %}
+                            <td style="color: green;">{{ data.status}}</td>
+                        {% endif %}
                         <td>
                             <input type="submit" value="Edit" class="btn btn-sm btn-primary" id="edit_taskdata" data-action="edit" data-id="{{data.id}}" 
                             data-prjtitle="{{data.project__id}}" data-listname="{{data.task_list}}" data-title="{{data.title}}" data-description="{{data.description}}" data-duedate="{{data.due_date|date:'Y-m-d'}}"  data-status="{{data.status}}" >
@@ -477,7 +483,15 @@
                     row += '<td>' + value.title + '</td>';
                     row += '<td>' + value.description + '</td>';
                     row += '<td>' + value.due_date + '</td>';
-                    row += '<td>' + value.status + '</td>';
+                    if (value.status == 'pending') {
+                        row += '<td style="color: red;">' + value.status + '</td>';
+                    }
+                    else if(value.status == 'inprogress'){
+                        row += '<td style="color: orange;">' + value.status + '</td>';
+                    }
+                    else{
+                        row += '<td style="color: green;">' + value.status + '</td>';
+                    }
                     row += '<td>';                            
                     row += '<input type="submit" value="Edit" class="btn btn-sm btn-primary" id="edit_taskdata" data-action="edit" data-id="' + value.id + '" data-prjtitle="' + value.project_id + '" data-listname="' + value.task_list_id + '" data-title="' + value.title + '" data-description="' + value.description + '" data-duedate="' + value.due_date + '"  data-status="' + value.status + '" >'; 
                     row += '<input type="submit" value="Delete" class="btn btn-sm btn-primary" id="delete_taskdata" data-title="' + value.title + '"  data-action="delete" data-id="' + value.id + '">';

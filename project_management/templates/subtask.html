@@ -85,37 +85,44 @@
             </form>
         </div>
 
-        
+
         <div class="table-responsive">
         <div class="table-container" style="height: 180px;">
         <table id="id_prj_subtask" class="table text-start align-middle table-bordered table-hover mb-0">
             <thead class="sticky-header">
                 <tr>
-                    <th>Task</th>
-                    <th>Title</th>
-                    <th>Description</th>
-                    <th>Due date</th>
-                    <th>Staus</th>
-                    <th>Action</th>
+                    <th scope="col" style="top: 0;position: sticky;background: #f3f6f9;color:black;">Task</th>
+                    <th scope="col" style="top: 0;position: sticky;background: #f3f6f9;color:black;">Title</th>
+                    <th scope="col" style="top: 0;position: sticky;background: #f3f6f9;color:black;">Description</th>
+                    <th scope="col" style="top: 0;position: sticky;background: #f3f6f9;color:black;">Due date</th>
+                    <th scope="col" style="top: 0;position: sticky;background: #f3f6f9;color:black;">Staus</th>
+                    <th scope="col" style="top: 0;position: sticky;background: #f3f6f9;color:black;">Action</th>
                 </tr>
             </thead>
             <tbody> 
                 {% for data in subtask %}
-                    {% for list in task_data %} 
-                    {% if data.task_name == list.title  %}
+                    <!-- {% for list in task_data %} 
+                    {% if data.task_name == list.title  %} -->
                     <tr>
                         <td>{{ data.task_name }}</td>
                         <td>{{ data.title}}</td>
                         <td>{{ data.description}}</td>
                         <td>{{ data.due_date|date:"d/m/Y"}}</td>
-                        <td>{{ data.status}}</td>
+
+                        {% if data.status == 'pending' %}
+                            <td style="color: red;">{{ data.status}}</td>
+                        {% elif data.status ==  'inprogress' %}
+                            <td style="color: orange;">{{ data.status}}</td>
+                        {% else %}
+                            <td style="color: green;">{{ data.status}}</td>
+                        {% endif %}
                         <td>
                             <input type="submit" value="Edit" class="btn btn-sm btn-primary" id="edit_subtaskdata" data-action="edit" data-id="{{data.id}}" data-task="{{data.task_name}}" data-taskid="{{data.parent_task_id}}" data-title="{{data.title}}" data-description="{{data.description}}" data-duedate="{{data.due_date|date:'Y-m-d'}}"  data-status="{{data.status}}" >
                             <input type="submit" value="Delete" class="btn btn-sm btn-primary" id="delete_subtaskdata" data-title="{{data.title}}" data-action="delete" data-id="{{data.id}}">
                         </td>
                     </tr>
-                    {% endif %}
-                    {% endfor %}
+                    <!-- {% endif %}
+                    {% endfor %} -->
 
                 {% empty %}
                     <tr>
@@ -364,7 +371,15 @@
                     row += '<td>' + value.title + '</td>';
                     row += '<td>' + value.description + '</td>';
                     row += '<td>' + value.due_date + '</td>';
-                    row += '<td>' + value.status + '</td>';
+                    if (value.status == 'pending') {
+                        row += '<td style="color: red;">' + value.status + '</td>';
+                    }
+                    else if(value.status == 'inprogress'){
+                        row += '<td style="color: orange;">' + value.status + '</td>';
+                    }
+                    else{
+                        row += '<td style="color: green;">' + value.status + '</td>';
+                    }
                     row += '<td>';   
                                                      
                     row += '<input type="submit" value="Edit" class="btn btn-sm btn-primary" id="edit_subtaskdata" data-action="edit" data-id="' + value.id + '"  data-task="' + value.task_name + '" data-taskid="' + value.parent_task_id + '" data-title="' + value.title + '" data-description="' + value.description + '" data-duedate="' + value.due_date + '"  data-status="' + value.status + '" >'; 
