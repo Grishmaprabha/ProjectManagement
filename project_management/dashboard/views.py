@@ -19,8 +19,7 @@ from celery import shared_task
 import smtplib
 from email.mime.text import MIMEText
 from django.db.models import F,Subquery, OuterRef, Count
-
-
+from django.core.paginator import Paginator, Page
 from django.core.mail import send_mail
 
 
@@ -606,15 +605,6 @@ def send_email_reminder():
 #     send_email_reminder.delay()
 #     return HttpResponse("Email reminder task scheduled successfully!")
 
-
-# project_list = [{'id': project.id, 'title': project.title, 'description': project.description, 'startdate': project.startdate, 'enddate': project.enddate, 'status': project.status} for project in list_project]
-    
-    # list_list = List.objects.all().annotate(project_title=F('project__title')).values('id', 'list', 'project_title','project_id')
-    # task_data_annotated = List.objects.all().annotate(project_title=F('project__title')).values('id', 'list', 'project_title','project_id')
-    # list_subquery = List.objects.filter(pk=OuterRef('task_list_id')).values('list')[:1]
-    # list_task = task_data_annotated.annotate(task_list_name=Subquery(list_subquery)).all()
-    # list_subtask = Subtask.objects.annotate(task_name=F('parent_task__title')).values('id','title', 'description', 'status', 'due_date', 'parent_task_id','task_name')  
-    
 
 
 def getprojectdata(request):
