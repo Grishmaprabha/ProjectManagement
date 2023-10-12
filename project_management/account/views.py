@@ -26,13 +26,13 @@ def home(request):
     data_received = request.session.get('user_data')
     user_profile = CustomUser.objects.filter(username=data_received['username']).values('id','username','email','role')
     user_data = CustomUser.objects.all().values_list('id','username')
-    list_data = Project.objects.all().values('id','title','description','startdate','enddate','status')
-    datalist_list = List.objects.all().annotate(project_title=F('project__title')).values('id', 'list', 'project_title','project_id')
+    list_data = Project.objects.all().order_by('-created_at').values('id','title','description','startdate','enddate','status')
+    datalist_list = List.objects.all().annotate(project_title=F('project__title')).order_by('-created_at').values('id', 'list', 'project_title','project_id')
     user_id = CustomUser.objects.filter(username=data_received['username']).values('id')
     project_user = Project.objects.filter(user=user_id[0]['id']).values('id','title')
     task_data_annotated = Task.objects.annotate(project_title=F('project__title')).values('id', 'title', 'description', 'due_date', 'status', 'project_title', 'project__id', 'task_list')
     list_subquery = List.objects.filter(pk=OuterRef('task_list_id')).values('list')[:1]
-    combined_task_data = task_data_annotated.annotate(task_list_name=Subquery(list_subquery)).all()
+    combined_task_data = task_data_annotated.annotate(task_list_name=Subquery(list_subquery)).all().order_by('-created_at')
     if status_filter:
         combined_task_data = combined_task_data.filter(status=status_filter)
     if keyword:
@@ -45,7 +45,7 @@ def home(request):
         combined_task_data = combined_task_data.order_by('title')
         
     # subtask = Subtask.objects.all().values('title','description','status','due_date','parent_task')
-    subtask = Subtask.objects.annotate(task_name=F('parent_task__title')).values('id','title', 'description', 'status', 'due_date', 'parent_task_id','task_name')   
+    subtask = Subtask.objects.annotate(task_name=F('parent_task__title')).order_by('-created_at').values('id','title', 'description', 'status', 'due_date', 'parent_task_id','task_name')   
     
     total_project = Project.objects.filter(user=user_id[0]['id']).count()
     pending_tasks = Task.objects.filter(status='pending', project__user=user_id[0]['id']).count()

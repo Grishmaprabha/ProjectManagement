@@ -27,7 +27,7 @@ class Project(models.Model):
     # user = models.ManyToManyField(User, related_name='projects', blank=True)
     # totalduration = models.DecimalField(max_digits=5, decimal_places=2)
     # durationunit = models.CharField(max_length=6, choices=duration_choice, default='Hours')
-    
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
         return self.title
@@ -37,7 +37,7 @@ class Project(models.Model):
 class List(models.Model):
     list = models.CharField(max_length=250)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='lists')
-
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
     def __str__(self):
         return self.title
     
@@ -55,7 +55,8 @@ class Task(models.Model):
     status = models.CharField(max_length=12, choices=status_choices, default='Pending')
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='tasks')
     task_list = models.ForeignKey(List, on_delete=models.CASCADE, related_name='tasks')
-
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    
     def __str__(self):
         return self.title
 
@@ -71,7 +72,8 @@ class Subtask(models.Model):
     status = models.CharField(max_length=12, choices=status_choices, default='Pending')
     due_date = models.DateField()
     parent_task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='subtasks')
-
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    
     def __str__(self):
         return self.title
     

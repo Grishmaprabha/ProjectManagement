@@ -19,7 +19,7 @@ from celery import shared_task
 import smtplib
 from email.mime.text import MIMEText
 from django.db.models import F,Subquery, OuterRef, Count
-from django.core.paginator import Paginator, Page
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.mail import send_mail
 
 
@@ -412,7 +412,7 @@ def add_subtask(request):
             
             subtask_name = Subtask.objects.filter(title=title)            
             if subtask_name:
-                return JsonResponse({'status': '-3' ,'message': 'List name already exist'}) 
+                return JsonResponse({'status': '-3' ,'message': 'Subtask name already exist'}) 
             
             if duedate == '':
                 return JsonResponse({'status': '-4' , 'message': 'Due date cannot be empty'})
@@ -563,10 +563,19 @@ def activitylog(request):
             
             activity_entries = ActivityLog.objects.filter(user=user_name[0]['id']).order_by('-timestamp')
             all_activity_entries.extend(activity_entries)
-            
+    
+    page = request.GET.get('page')  # Get the current page from the request's query parameters
+    per_page = 10  # Number of entries per page (you can adjust this as needed)
+    paginator = Paginator(all_activity_entries, per_page)
+    try:
+        activity_entries = paginator.page(page)
+    except PageNotAnInteger:
+        activity_entries = paginator.page(1)
+    except EmptyPage:
+        activity_entries = paginator.page(paginator.num_pages)      
    
     
-    return render(request, 'activity_log.html', {'activity_entries': all_activity_entries})
+    return render(request, 'activity_log.html', {'activity_entries': activity_entries})
 
 
 
@@ -609,14 +618,14 @@ def send_email_reminder():
 
 def getprojectdata(request):
     # import pdb;pdb.set_trace();
-    list_project = Project.objects.all().values('id','title','description','startdate','enddate','status')
+    list_project = Project.objects.all().order_by('-created_at').values('id','title','description','startdate','enddate','status')
     project_list = list(list_project.values())
     return JsonResponse({'project': project_list})
 
 
 def getlistdata(request):
     # import pdb;pdb.set_trace();
-    list_list = List.objects.all().annotate(project_title=F('project__title')).values('id', 'list', 'project_title','project_id')
+    list_list = List.objects.all().annotate(project_title=F('project__title')).order_by('-created_at').values('id', 'list', 'project_title','project_id')
     list_data = list(list_list.values())
     return JsonResponse({'list_data': list_data})
 
@@ -625,14 +634,14 @@ def gettaskdata(request):
     # import pdb;pdb.set_trace();    
     task_data_annotated = Task.objects.annotate(project_title=F('project__title')).values('id', 'title', 'description', 'due_date', 'status', 'project_title', 'project__id', 'task_list')
     list_subquery = List.objects.filter(pk=OuterRef('task_list_id')).values('list')[:1]
-    combined_task_data = task_data_annotated.annotate(task_list_name=Subquery(list_subquery)).all()
+    combined_task_data = task_data_annotated.annotate(task_list_name=Subquery(list_subquery)).all().order_by('-created_at')
     list_task = list(combined_task_data.values())
     return JsonResponse({'task': list_task})
 
 
 def getsubtaskdata(request):
     # import pdb;pdb.set_trace();
-    subtask_data = Subtask.objects.annotate(task_name=F('parent_task__title')).values('id','title', 'description', 'status', 'due_date', 'parent_task_id','task_name')
+    subtask_data = Subtask.objects.annotate(task_name=F('parent_task__title')).order_by('-created_at').values('id','title', 'description', 'status', 'due_date', 'parent_task_id','task_name')
     list_subtask = list(subtask_data.values())
     return JsonResponse({'subtask': list_subtask})
 

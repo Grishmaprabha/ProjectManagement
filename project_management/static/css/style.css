@@ -275,3 +275,57 @@
     background: var(--dark);
     border-color: var(--primary);
 }
+
+
+.table-container {
+    max-height: 180px; /* Adjust the height as needed */
+    overflow-y: auto;
+}
+
+/* Fixed header for the table */
+.table-container table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.table-container thead {
+    position: sticky;
+    top: 0;
+    background-color: #fff;
+}
+
+.sticky-header {
+    position: sticky;
+    top: 0;
+    background-color: #fff;
+}
+
+
+#project-info {
+    position: relative;
+}
+
+.tooltip {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+#project-info:hover .tooltip {
+    display: block;
+}
+
+.hide {
+    display: none;
+}
+      
+.mouse_hover:hover + .hide {
+    display: block;
+    color: red;
+}
