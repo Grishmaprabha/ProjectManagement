@@ -74,7 +74,7 @@ def register(request):
         if password1 != password2:
             msg = 'password should be same'
             return render(request,'register.html', {'msg': msg})         
-        elif username =='':
+        elif username == '':
             msg = 'Username cannot be null'
             return render(request,'register.html', {'msg': msg})
         elif email == '':

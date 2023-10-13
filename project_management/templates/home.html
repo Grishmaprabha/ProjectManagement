@@ -235,7 +235,7 @@
                                     <th scope="col" style="top: 0;position: sticky;background: #f3f6f9;color:black;">Description</th>
                                     <th scope="col" style="top: 0;position: sticky;background: #f3f6f9;color:black;">Due date</th>
                                     <th scope="col" style="top: 0;position: sticky;background: #f3f6f9;color:black;">Status</th>
-                                    <!-- <th scope="col">Action</th> -->
+                                    <th scope="col" style="top: 0;position: sticky;background: #f3f6f9;color:black;">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -257,11 +257,11 @@
                                             {% endif %}
 
                                             
-                                            <!-- <td>
-                                                <input type="submit" value="Edit" class="btn btn-sm btn-primary" id="edit_taskdata" data-action="home_edit" data-id="{{data.id}}" data-prjtitle="{{data.project__id}}" data-listname="{{data.task_list}}" data-title="{{data.title}}" data-description="{{data.description}}" data-duedate="{{data.due_date|date:'Y-m-d'}}"  data-status="{{data.status}}" >
+                                            <td>
+                                                <input data-toggle="modal" data-target="#myTaskModal" type="submit" value="Edit" class="btn btn-sm btn-primary" id="edit_taskdata" data-action="home_edit" data-id="{{data.id}}" data-prjtitle="{{data.project__id}}" data-listname="{{data.task_list}}" data-title="{{data.title}}" data-description="{{data.description}}" data-duedate="{{data.due_date|date:'Y-m-d'}}"  data-status="{{data.status}}" >
                                                 <input type="submit" value="Delete" class="btn btn-sm btn-primary" id="delete_taskdata" data-action="delete" data-id="{{data.id}}">
                     
-                                            </td> -->
+                                            </td>
                                         </tr>
 
                                         {% endif %}
@@ -649,9 +649,9 @@
         });
 
 
-    
 
-    
+
+
 
         
 
