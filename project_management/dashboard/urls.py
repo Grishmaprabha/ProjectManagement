@@ -35,20 +35,10 @@ urlpatterns = [
     path('get_chart_data/', views.getchartdata, name='get_chart_data'),
     path('get_piechart_data/', views.getpiechartdata, name='get_piechart_data'),
     
-    
+    path('get_tooltip_data/', views.gettooltipdata, name='get_tooltip_data'),  
     
     # path('schedule_email_reminder/', views.schedule_email_reminder, name='schedule_email_reminder'),
-    
-    
-    
-    
-    
-    
+   
     
 ]
-    # path('', views.index, name= 'index'),
-    # path('login/', views.login_view, name='login'),
-    # path('register/', views.register, name='register'),
-    # path('logout/', views.logout_view, name='logout'),
-    # path('home/', views.home, name='home'),
  

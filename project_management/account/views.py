@@ -56,12 +56,8 @@ def home(request):
     today = date.today()
     three_days_later = today + timedelta(days=3)
 
-    # Perform the query to get tasks with due dates within the next 3 days
     due_task = Task.objects.filter(due_date__gte=today, due_date__lte=three_days_later,project__user=user_id[0]['id']).count()
-    
-    total_task = Task.objects.filter(project__user=user_id[0]['id']).count()
-
-
+    total_task = Task.objects.filter(project__user=user_id[0]['id']).count()   
     return render(request, 'home.html', {'dataReceived': data_received,'user_data':user_data,'list_data':list_data,'list':datalist_list,'projects':project_user,'task_data':combined_task_data,'subtask':user_subtasks,'profile':user_profile,'prj_count':total_project,'pending_tasks':pending_tasks,'due_task':due_task,'total_task':total_task})
 
 
@@ -115,7 +111,6 @@ def login_view(request):
             data['username'] = username
             user_role =  CustomUser.objects.filter(username=username).values('role')
             data['role'] = user_role[0]['role']
-            # return render(request , 'home.html', {'data': data })
             request.session['user_data'] = {'username': username, 'role': user_role[0]['role']}
             return redirect('home')
         else:

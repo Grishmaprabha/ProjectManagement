@@ -23,10 +23,6 @@ class Project(models.Model):
     enddate = models.DateField()    
     status = models.CharField(max_length=12, choices=status_choice, default='Pending')
     user = models.ManyToManyField(CustomUser, related_name='projects')
-    # user = models.ForeignKey(User, on_delete=models.CASCADE) 
-    # user = models.ManyToManyField(User, related_name='projects', blank=True)
-    # totalduration = models.DecimalField(max_digits=5, decimal_places=2)
-    # durationunit = models.CharField(max_length=6, choices=duration_choice, default='Hours')
     created_at = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
@@ -82,12 +78,11 @@ class ActivityLog(models.Model):
         ('Task Created', 'Task Created'),
         ('Task Updated', 'Task Updated'),
         ('Task Deleted', 'Task Deleted'),
-        # Add more choices for other actions
     )
 
     action = models.CharField(max_length=50, choices=ACTION_CHOICES)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True)
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now_add=True,)
     details = models.TextField()
     

@@ -14,7 +14,6 @@ from celery import shared_task
 from datetime import date,datetime, timedelta
 from django.core.mail import send_mail
 from django.utils import timezone
-# from project_management.settings import EMAIL_HOST_USER
 from celery import shared_task
 import smtplib
 from email.mime.text import MIMEText
@@ -177,7 +176,7 @@ def update_data(request):
         # import pdb;pdb.set_trace();
         id = request.POST.get('id')
         project = Project.objects.get(id=id)
-        users = project.user.all()  # Retrieve all associated users
+        users = project.user.all() 
         user_ids = [user.id for user in users]
         print(user_ids)
         return JsonResponse({'status': '1' , 'users':user_ids})          
@@ -556,15 +555,12 @@ def activitylog(request):
             team = Project.objects.filter(title=data['title']).values_list('user')
             
         for item in team:
-            user_name = CustomUser.objects.filter(id=item[0]).values('id','username')
-            
-            
-            
+            user_name = CustomUser.objects.filter(id=item[0]).values('id','username')            
             activity_entries = ActivityLog.objects.filter(user=user_name[0]['id']).order_by('-timestamp')
             all_activity_entries.extend(activity_entries)
     
-    page = request.GET.get('page')  # Get the current page from the request's query parameters
-    per_page = 10  # Number of entries per page (you can adjust this as needed)
+    page = request.GET.get('page')  
+    per_page = 10 
     paginator = Paginator(all_activity_entries, per_page)
     try:
         activity_entries = paginator.page(page)
@@ -607,7 +603,7 @@ def send_email_reminder():
     except:
         return HttpResponse("Email sent Unsuccessful!")
 
-send_email_reminder()
+# send_email_reminder()
 
 # def schedule_email_reminder(request):
 #     send_email_reminder.delay()
@@ -698,4 +694,37 @@ def getpiechartdata(request):
 
     return JsonResponse(data)
     
+def gettooltipdata(request):
+    # import pdb;pdb.set_trace();
+    data_received = request.session.get('user_data')
+    today = date.today()
+    three_days_later = today + timedelta(days=3)
+    user_id = CustomUser.objects.filter(username=data_received['username']).values('id')
+    total_task_data = Task.objects.filter(project__user=user_id[0]['id']).values('title')
+    total_project_data = Project.objects.filter(user=user_id[0]['id']).values('title')
+    total_pending_task = Task.objects.filter(status='pending', project__user=user_id[0]['id']).values('title')
+    total_due_task = Task.objects.filter(due_date__gte=today, due_date__lte=three_days_later,project__user=user_id[0]['id']).values('title')
+    task = []
+    project = []
+    pending = []
+    duetask = []
+    for data in total_task_data:
+        task.append(data)
+    for prj in total_project_data:
+        project.append(prj)
+    for pend in total_pending_task:
+        pending.append(pend)
+    for due in total_due_task:
+        duetask.append(due)
+        
+    data = {
+        "task": task,
+        "project": project,
+        "pending": pending,
+        "due": duetask
+    }
+        
+    
+    return JsonResponse(data, safe=False)
+
 

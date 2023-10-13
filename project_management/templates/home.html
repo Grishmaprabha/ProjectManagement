@@ -152,16 +152,16 @@
             <!-- Sale & Revenue Start -->
             <div class="container-fluid pt-4 px-4">
                 <div class="row g-4">
-                    <div class="col-sm-6 col-xl-3">
-                        <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                    <div class="col-sm-6 col-xl-3 tooltip-container-project">
+                        <div class="bg-light rounded d-flex align-items-center justify-content-between p-4" title="Total Projects: {{ prj_count }}">
                             <i class="fa fa-folder fa-3x text-primary"></i>                            
-                            <div class="ms-3">
+                            <div class="ms-3" >
                                 <p class="mb-2">Total Project</p>
                                 <h6 class="mb-0">{{prj_count}}</h6>
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-6 col-xl-3">
+                    <div class="col-sm-6 col-xl-3 tooltip-container-task">
                         <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
                             <i class="fa fa-tasks fa-3x text-primary"></i>
                             <div class="ms-3">
@@ -170,7 +170,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-6 col-xl-3">
+                    <div class="col-sm-6 col-xl-3 tooltip-container-pndtask">
                         <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
                             <i class="fa fa-clock fa-3x text-primary"></i>
                             <div class="ms-3">
@@ -179,7 +179,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-6 col-xl-3">
+                    <div class="col-sm-6 col-xl-3 tooltip-container-duetask">
                         <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
                             <i class="fa fa-calendar-alt fa-3x text-primary"></i>
                             <div class="ms-3">
@@ -448,7 +448,7 @@
 
 
         <!-- Back to Top -->
-        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+        <!-- <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a> -->
     </div>
 
     <!-- JavaScript Libraries -->
@@ -588,7 +588,70 @@
 
 
 
-        
+        $.ajax({
+            url: "/get_tooltip_data/",
+            method: "GET",
+            dataType: "json",
+            success: function (data) {
+                console.log(data,"datahere...")
+                $.each(data.task, function(index, item) {
+                var $tooltip = $('<div class="custom-tooltip-task" style="display: none;"> '+ item.title +'</div>');
+                $tooltip.appendTo($('.tooltip-container-task')); 
+                $('.tooltip-container-task').mouseenter(function() {
+                    $tooltip.css('display', 'block');
+                });
+
+                $('.tooltip-container-task').mouseleave(function() {
+                    $tooltip.css('display', 'none');
+                });
+                })
+
+                $.each(data.due, function(index, item) {
+                var $tooltip = $('<div class="custom-tooltip-due" style="display: none;"> '+ item.title +'</div>');
+                $tooltip.appendTo($('.tooltip-container-duetask')); 
+                $('.tooltip-container-duetask').mouseenter(function() {
+                    $tooltip.css('display', 'block');
+                });
+
+                $('.tooltip-container-duetask').mouseleave(function() {
+                    $tooltip.css('display', 'none');
+                });
+                })
+
+                $.each(data.project, function(index, item) {
+                var $tooltip = $('<div class="custom-tooltip-project" style="display: none;"> '+ item.title +'</div>');
+                $tooltip.appendTo($('.tooltip-container-project')); 
+                $('.tooltip-container-project').mouseenter(function() {
+                    $tooltip.css('display', 'block');
+                });
+
+                $('.tooltip-container-project').mouseleave(function() {
+                    $tooltip.css('display', 'none');
+                });
+                })
+
+                $.each(data.pending, function(index, item) {
+                var $tooltip = $('<div class="custom-tooltip-pending" style="display: none;"> '+ item.title +'</div>');
+                $tooltip.appendTo($('.tooltip-container-pndtask')); 
+                $('.tooltip-container-pndtask').mouseenter(function() {
+                    $tooltip.css('display', 'block');
+                });
+
+                $('.tooltip-container-pndtask').mouseleave(function() {
+                    $tooltip.css('display', 'none');
+                });
+                })
+                
+            },
+            error: function (error) {
+                console.log("Error fetching data: " + error);
+            }
+        });
+
+
+    
+
+    
 
         
 

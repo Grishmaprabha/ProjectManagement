@@ -92,18 +92,9 @@
                 <div class="col-md-4">
                     <div class="form-group first">
                         <p for="assignedto">Assigned To :</p>                  
-                          <!-- <input type="" name="assignedto" id="assignedto" value="" style="width: 200px;"> -->
-
-                          <!-- <label for="user">Select Users:</label>
-                            <select id="user">
-                                {% for data in user_data %}
-
-                                    <option value={{data.0}}>{{data.1}}</option>
-                                {% endfor %}
-                            </select>
-
-                            <br> -->
-
+                          
+                            <input type="checkbox" value='all' id="select-all" />Select all
+                            <br><br>
                             <label for="user">
                                 {% for data in user_data %}
                                 <input type="checkbox" value={{data.0}} class="user_chkbox"  />
@@ -208,6 +199,17 @@
         $('#prj_modal_close').on('click',function(e){
             location.reload();
         })
+
+
+        $('#select-all').change(function() {
+            $('.user_chkbox').prop('checked', this.checked);
+        });
+
+        $('.user_chkbox').change(function() {
+            if (!this.checked) {
+                $('#select-all').prop('checked', false);
+            }
+        });
 
         
 

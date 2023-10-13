@@ -254,7 +254,7 @@
                 console.log(data);
                 if(data.status == 1){
                     $('#form_add_task')[0].reset()
-                    // $('#tasklist').val('')
+                    $('#tasklist').val('')
                     toastr.success(data.message)
                     reloadTaskTable()
                 }
@@ -295,7 +295,6 @@
         e.preventDefault()
 
         $('#tasklist').click()
-        // $('#taskprojects').trigger('change')
 
 
         if($('#edit_taskdata').data('action') == 'home_edit'){
@@ -303,10 +302,9 @@
         }
 
         $('#form_add_task')[0].reset()
-        // $('#tasklist').val('')
+        $('#tasklist').val('')
         $('#addtask').css("display", "none");
         $('#updatetask').css("display", "");
-
 
 
         var id = $(this).data('id')
@@ -316,7 +314,6 @@
         var description = $(this).data('description')
         var duedate = $(this).data('duedate')
         var status = $(this).data('status')
-
         
 
         var url = "{% url 'dashboard:getupdatelistdata' %}"; 
@@ -342,9 +339,7 @@
                     // $('#taskprojects').trigger('change')
                     $('#tasklist').empty()
                     var option = '<option value="' + data.task.id + '">' + data.task.list + '</option>';
-                        $('#tasklist').append(option);
-
-                        
+                        $('#tasklist').append(option);                       
 
                     // $('#tasklist').val(list)
                     $('#tasktitle').val(title)
@@ -359,10 +354,6 @@
                 }
             },
         });
-
-        
-        
-
     })
 
 
@@ -401,7 +392,7 @@
                     $('#addproject').css("display", "");
                     $('#updateproject').css("display", "none");
                     $('#form_add_task')[0].reset()
-                    // $('#tasklist').val('')
+                    $('#tasklist').val('')
                     toastr.success(data.message)
                     reloadTaskTable()
                 }
@@ -446,7 +437,7 @@
                     console.log(data);
                     if(data.status == 1){
                         $('#form_add_task')[0].reset()
-                        // $('#tasklist').val('')
+                        $('#tasklist').val('')
                         toastr.success(data.message)
                         reloadTaskTable()
                     }
