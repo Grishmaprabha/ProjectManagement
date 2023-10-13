@@ -607,7 +607,7 @@ def send_email_reminder():
     except:
         return HttpResponse("Email sent Unsuccessful!")
 
-# send_email_reminder()
+send_email_reminder()
 
 # def schedule_email_reminder(request):
 #     send_email_reminder.delay()
