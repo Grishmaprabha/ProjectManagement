@@ -305,23 +305,6 @@
     });
 
 
-//     function updateTable() {
-//     var url = "{% url 'dashboard:updatetable' %}"; 
-//     $.ajax({
-//       url: url, 
-//       method: 'GET',
-//       success: function(data) {
-//         console.log(data,'this is data')
-//         // Clear the existing table rows
-//         $('#id_prj_list tbody').empty();
-
-//         // Iterate through the data and add rows to the table
-//         $.each(data, function(index, item) {
-//             $('#id_prj_list tbody').append('<tr><td>' + item.title + '</td><td>' + item.description + '</td><td>' + item.startdate + '</td> <td>' + item.enddate + '</td> <td>' + item.status + '</td><td> <input type="submit" value="Edit" class="btn" id="edit_data" data-action="edit" data-id="' + item.id + '" data-title="' + item.title + '" data-description="' + item.description + '" data-startdate="' + item.startdate + '" data-enddate="' + item.enddate + '" data-status="' + item.status + '" ><input type="submit" value="Delete" class="btn" id="delete_data" data-action="delete" data-id="' + item.id + '"> </td></tr>');
-//         });
-//       }
-//     });
-//   }
 
 
     function reloadListTable() {

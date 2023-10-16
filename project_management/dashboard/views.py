@@ -163,14 +163,6 @@ def delete_project(request):
     except:
         return JsonResponse({'status': '0' , 'message': 'Some error occured'})
     
-def update_table(request):
-    # import pdb;pdb.set_trace()
-    try:
-        updated_list = Project.objects.all().values('id','title','description','startdate','enddate','status','user')
-        return JsonResponse({'data':updated_list})
-    except:
-        return JsonResponse({'status': '0' , 'message': 'Some error occured'})
-    
 def update_data(request):
     try:
         # import pdb;pdb.set_trace();
@@ -193,14 +185,16 @@ def add_list(request):
             project = request.POST.get('project')
             list_data = request.POST.get('list')
             
+            project_instance = Project.objects.get(id=project) 
+            
             
             if list_data == '' or project == ' ':
                 return JsonResponse({'status': '-1' , 'message': 'List/Project cannot be empty'})
-            list_chk = List.objects.filter(list=list_data)
+            list_chk = List.objects.filter(list=list_data,project=project_instance)
             if list_chk:
                 return JsonResponse({'status': '-2' ,'message': 'List name already exist'})
             
-            project_instance = Project.objects.get(id=project)                          
+                                     
             
             List.objects.create(list=list_data,project=project_instance)            
                         
@@ -271,12 +265,15 @@ def add_task(request):
             
             user_data = request.session.get('user_data')
             
+            project_instance = Project.objects.get(id=project)  
+            list_instance = List.objects.get(id=list_data)  
+            
             
             if project == '':
                 return JsonResponse({'status': '-1' , 'message': 'Project cannot be empty'})
-            task_name = Task.objects.filter(title=title)
+            task_name = Task.objects.filter(title=title,project=project_instance,task_list=list_instance)
             if task_name:
-                return JsonResponse({'status': '-2' ,'message': 'List name already exist'}) 
+                return JsonResponse({'status': '-2' ,'message': 'Task name already exist'}) 
             
             if duedate == '':
                 return JsonResponse({'status': '-3' , 'message': 'Due date cannot be empty'})
@@ -284,8 +281,7 @@ def add_task(request):
                 return JsonResponse({'status': '-4' , 'message': 'Title cannot be empty'})
                           
                         
-            project_instance = Project.objects.get(id=project)  
-            list_instance = List.objects.get(id=list_data)                        
+                                  
             
             Task.objects.create(title=title,description=description,due_date=duedate,status=status,project=project_instance,task_list=list_instance)  
             
@@ -402,13 +398,15 @@ def add_subtask(request):
             status = request.POST.get('status')
             user_data = request.session.get('user_data')
             
+            task_instance = Task.objects.get(id=task)  
+            
             if task == '':
                 return JsonResponse({'status': '-1' ,'message': ' cannot be empty'}) 
             
             if title == '':
                 return JsonResponse({'status': '-2' , 'message': 'Title cannot be empty'})
             
-            subtask_name = Subtask.objects.filter(title=title)            
+            subtask_name = Subtask.objects.filter(title=title,parent_task=task_instance)            
             if subtask_name:
                 return JsonResponse({'status': '-3' ,'message': 'Subtask name already exist'}) 
             
@@ -417,7 +415,7 @@ def add_subtask(request):
             
                           
                         
-            task_instance = Task.objects.get(id=task)                         
+                                   
             
             Subtask.objects.create(title=title,description=description,due_date=duedate,status=status,parent_task=task_instance)  
             
