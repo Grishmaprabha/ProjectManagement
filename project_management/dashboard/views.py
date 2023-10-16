@@ -612,22 +612,28 @@ send_email_reminder()
 
 
 def getprojectdata(request):
+    user_data = request.session.get('user_data')
+    user_id = CustomUser.objects.filter(username=user_data['username']).values('id')
     # import pdb;pdb.set_trace();
-    list_project = Project.objects.all().order_by('-created_at').values('id','title','description','startdate','enddate','status')
+    list_project = Project.objects.filter(user=user_id[0]['id']).order_by('-created_at').values('id','title','description','startdate','enddate','status')
     project_list = list(list_project.values())
     return JsonResponse({'project': project_list})
 
 
 def getlistdata(request):
     # import pdb;pdb.set_trace();
-    list_list = List.objects.all().annotate(project_title=F('project__title')).order_by('-created_at').values('id', 'list', 'project_title','project_id')
+    user_data = request.session.get('user_data')
+    user_id = CustomUser.objects.filter(username=user_data['username']).values('id')
+    list_list = List.objects.filter(project__user=user_id[0]['id']).annotate(project_title=F('project__title')).order_by('-created_at').values('id', 'list', 'project_title','project_id')
     list_data = list(list_list.values())
     return JsonResponse({'list_data': list_data})
 
 
 def gettaskdata(request):
     # import pdb;pdb.set_trace();    
-    task_data_annotated = Task.objects.annotate(project_title=F('project__title')).values('id', 'title', 'description', 'due_date', 'status', 'project_title', 'project__id', 'task_list')
+    user_data = request.session.get('user_data')
+    user_id = CustomUser.objects.filter(username=user_data['username']).values('id')
+    task_data_annotated = Task.objects.filter(project__user=user_id[0]['id']).annotate(project_title=F('project__title')).values('id', 'title', 'description', 'due_date', 'status', 'project_title', 'project__id', 'task_list')
     list_subquery = List.objects.filter(pk=OuterRef('task_list_id')).values('list')[:1]
     combined_task_data = task_data_annotated.annotate(task_list_name=Subquery(list_subquery)).all().order_by('-created_at')
     list_task = list(combined_task_data.values())
@@ -636,7 +642,9 @@ def gettaskdata(request):
 
 def getsubtaskdata(request):
     # import pdb;pdb.set_trace();
-    subtask_data = Subtask.objects.annotate(task_name=F('parent_task__title')).order_by('-created_at').values('id','title', 'description', 'status', 'due_date', 'parent_task_id','task_name')
+    user_data = request.session.get('user_data')
+    user_id = CustomUser.objects.filter(username=user_data['username']).values('id')
+    subtask_data = Subtask.objects.filter(parent_task__project__user=user_id[0]['id']).annotate(task_name=F('parent_task__title')).order_by('-created_at').values('id','title', 'description', 'status', 'due_date', 'parent_task_id','task_name')
     list_subtask = list(subtask_data.values())
     return JsonResponse({'subtask': list_subtask})
 
