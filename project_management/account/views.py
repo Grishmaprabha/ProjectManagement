@@ -26,9 +26,9 @@ def home(request):
     data_received = request.session.get('user_data')
     user_profile = CustomUser.objects.filter(username=data_received['username']).values('id','username','email','role')
     user_data = CustomUser.objects.all().values_list('id','username')
-    list_data = Project.objects.all().order_by('-created_at').values('id','title','description','startdate','enddate','status')
-    datalist_list = List.objects.all().annotate(project_title=F('project__title')).order_by('-created_at').values('id', 'list', 'project_title','project_id')
     user_id = CustomUser.objects.filter(username=data_received['username']).values('id')
+    list_data = Project.objects.filter(user=user_id[0]['id']).order_by('-created_at').values('id','title','description','startdate','enddate','status')
+    datalist_list = List.objects.all().annotate(project_title=F('project__title')).order_by('-created_at').values('id', 'list', 'project_title','project_id')
     project_user = Project.objects.filter(user=user_id[0]['id']).values('id','title')
     task_data_annotated = Task.objects.annotate(project_title=F('project__title')).values('id', 'title', 'description', 'due_date', 'status', 'project_title', 'project__id', 'task_list')
     list_subquery = List.objects.filter(pk=OuterRef('task_list_id')).values('list')[:1]

@@ -98,6 +98,9 @@
                             <label for="user">
                                 {% for data in user_data %}
                                 <input type="checkbox" value={{data.0}} class="user_chkbox"  />
+                                    {% if data.1 == dataReceived.username %} 
+                                        <input type="checkbox" value={{data.0}} class="user_chkbox" checked />
+                                    {% endif %} 
                                 <span>{{data.1}}</span>
                                 {% endfor %}
                               </label><br>
